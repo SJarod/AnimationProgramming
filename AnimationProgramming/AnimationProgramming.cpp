@@ -51,6 +51,8 @@ class CSimulation : public ISimulation
 
 		for (int i = 0; i < (int)GetSkeletonBoneCount(); ++i)
 		{
+			std::cout << i << " : " << GetSkeletonBoneName(i) << std::endl;
+
 			Vector3 pos;
 			Quaternion rot;
 			GetSkeletonBoneLocalBindTransform(i, pos, rot);
@@ -69,6 +71,11 @@ class CSimulation : public ISimulation
 
 		// Z axis
 		DrawLine(0, 0, 0, 0, 0, 100, 0, 0, 1);
+
+		static float angle = 0.f;
+		skmesh.SetLocalBoneFromIndex(27, skmesh.GetLocalBoneFromIndex(27).pos, QuaternionFromAxisAngle({ 1, 0, 0 }, angle));
+		angle += 0.01f;
+		skmesh.SetLocalBoneFromIndex(6, skmesh.GetLocalBoneFromIndex(6).pos, QuaternionFromAxisAngle({ 1, 0, 0 }, -angle));
 
 		for (unsigned int i = 0; i < skmesh.GetSkeletonSize(); ++i)
 		{

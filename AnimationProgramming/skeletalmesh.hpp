@@ -25,6 +25,7 @@ public:
 	//returns the number of bones
 	unsigned int	GetSkeletonSize() const;
 
+	void			SetLocalBoneFromIndex(const int index, const Vector3& pos, const Quaternion& rot);
 	//returns a bone with local transform
 	Bone			GetLocalBoneFromIndex(const int index) const;
 	//returns a bone with global transform

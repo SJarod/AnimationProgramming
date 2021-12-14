@@ -16,6 +16,12 @@ unsigned int SkeletalMesh::GetSkeletonSize() const
 	return (int)bones.size();
 }
 
+void SkeletalMesh::SetLocalBoneFromIndex(const int index, const Vector3& pos, const Quaternion& rot)
+{
+	bones[index].pos = pos;
+	bones[index].rot = rot;
+}
+
 Bone SkeletalMesh::GetLocalBoneFromIndex(const int index) const
 {
 	return bones[index];
@@ -29,11 +35,11 @@ Bone SkeletalMesh::GetGlobalBoneFromIndex(const int index) const
 
 	Bone parent = GetGlobalBoneFromIndex(parentIndex);
 
-	Bone g = bones[index];
-	g.pos = parent.pos + RotateVectorByQuaternion(g.pos, parent.rot);
-	g.rot = QuaternionMultiply(parent.rot, g.rot);
+	Bone globalBone = bones[index];
+	globalBone.pos = parent.pos + RotateVectorByQuaternion(globalBone.pos, parent.rot);
+	globalBone.rot = QuaternionMultiply(parent.rot, globalBone.rot);
 
-	return g;
+	return globalBone;
 }
 
 const char* SkeletalMesh::GetBoneNameFromIndex(const int index) const
