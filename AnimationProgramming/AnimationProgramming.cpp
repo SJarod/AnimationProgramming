@@ -15,7 +15,7 @@ struct Bone
 	Maths::Quaternion rotation = {};
 };
 
-#pragma region ENGINE_TYPED_FUNCTIONS
+#pragma region ENGINE TYPED FUNCTIONS
 void GetSkeletonBoneLocalBindTransform(int boneIndex, Maths::Vector3& pos, Maths::Quaternion& q)
 {
 	GetSkeletonBoneLocalBindTransform(boneIndex, pos.x, pos.y, pos.z, q.w, q.x, q.y, q.z);
@@ -50,20 +50,7 @@ Maths::Vector3 GetAnimGlobalPos(const char* animName, int boneIndex, int keyFram
 }
 #pragma endregion
 
-#pragma region OTHER
-Maths::Vector3 GetParentRelativePos(int parentIndex, Bone bone)
-{
-	Bone parent;
-	GetSkeletonBoneLocalBindTransform(parentIndex, parent.position, parent.rotation);
-
-	int parentsParent = GetSkeletonBoneParentIndex(parentIndex);
-
-	if (parentsParent <= -1)
-		return parent.position + Maths::RotateVectorByQuaternion(bone.position, parent.rotation);
-
-	return GetParentRelativePos(parentsParent, parent);
-}
-
+#pragma region TO MOVE TO BONE CLASS
 Bone GetParentRelativeBone(int parentIndex, Bone& bone)
 {
 	if (parentIndex <= -1) return {};
@@ -80,13 +67,48 @@ Bone GetParentRelativeBone(int parentIndex, Bone& bone)
 
 	//return {};
 }
-#pragma endregion
 
+void DrawBoneNode(const Bone& bone, const float size, const Maths::Vector3 color)
+{
+	DrawLine(bone.position + Maths::Vector3{ -size, 0.f, size }, bone.position - Maths::Vector3{ -size, 0.f, size }, color.r, color.g, color.b);
+	DrawLine(bone.position + Maths::Vector3{ size, 0.f, size }, bone.position - Maths::Vector3{ size, 0.f, size }, color.r, color.g, color.b);
+	DrawLine(bone.position + Maths::Vector3{ 0.f, -size, size }, bone.position - Maths::Vector3{ 0.f, -size, size }, color.r, color.g, color.b);
+	DrawLine(bone.position + Maths::Vector3{ 0.f, size, size }, bone.position - Maths::Vector3{ 0.f, size, size }, color.r, color.g, color.b);
+}
+
+Maths::mat4x4 GetBoneMatrix(const Bone& bone, int parentIndex)
+{
+	Maths::mat4x4 matrix = Maths::mat4::identity();
+
+	if (parentIndex >= 0)
+	{
+		Bone parent;
+		GetSkeletonBoneLocalBindTransform(parentIndex, parent.position, parent.rotation);
+		matrix = matrix * GetBoneMatrix(parent, GetSkeletonBoneParentIndex(parentIndex));
+	}
+
+	matrix = matrix * Maths::mat4::translate(bone.position) * Maths::mat4::MakeRotationMatFromQuaternion(bone.rotation);
+	
+	return matrix;
+}
+#pragma endregion
 
 class CSimulation : public ISimulation
 {
 	Maths::Vector3 skeletonDrawOffset = { 0.f, -20.f, 0.f };
+	std::vector<Bone> bones;
 	
+	Maths::mat4x4* GetSkeletonMatrixArray()
+	{
+		Maths::mat4x4 matrix[64];
+		for (int i = 0; i < bones.size(); i++)
+		{
+			matrix[i] = GetBoneMatrix(bones[i], GetSkeletonBoneParentIndex(i));
+		}
+
+		return matrix;
+	}
+
 	virtual void Init() override
 	{
 		//system("pause");
@@ -94,6 +116,7 @@ class CSimulation : public ISimulation
 		int spine01 =	GetSkeletonBoneIndex("spine_01");
 		int spineParent = GetSkeletonBoneParentIndex(spine01);
 		const char* spineParentName = GetSkeletonBoneName(spineParent);
+		size_t boneCount = GetSkeletonBoneCount();
 
 		float posX, posY, posZ, quatW, quatX, quatY, quatZ;
 		size_t keyCount = GetAnimKeyCount("ThirdPersonWalk.anim");
@@ -102,6 +125,43 @@ class CSimulation : public ISimulation
 		printf("Spine parent bone : %s\n", spineParentName);
 		printf("Anim key count : %ld\n", keyCount);
 		printf("Anim key : pos(%.2f,%.2f,%.2f) rotation quat(%.10f,%.10f,%.10f,%.10f)\n", posX, posY, posZ, quatW, quatX, quatY, quatZ);
+	
+		printf("Bones: ");
+		for (int i = 0; (size_t)i < boneCount; i++)
+		{
+			//printf();
+			bones.push_back(Bone());
+			GetSkeletonBoneLocalBindTransform(i, bones.back().position, bones.back().rotation);
+		}
+
+		for (int i = 0; i < bones.size(); i++)
+			printf("\t-%s, rot.x = %f\n", GetSkeletonBoneName(i), bones[i].rotation.x);
+	}
+
+	void DrawSkeleton()
+	{
+		for (int i = 0; i < bones.size(); i++)
+		{
+			std::string boneName = GetSkeletonBoneName(i);
+			if (boneName.substr(0, 3) == "ik_")
+				continue;
+
+			int parentIndex = GetSkeletonBoneParentIndex(i);
+			if (parentIndex >= 0)
+			{
+				Bone bone = GetParentRelativeBone(parentIndex, bones[i]);
+				Bone parent = GetParentRelativeBone(GetSkeletonBoneParentIndex(parentIndex), bones[parentIndex]);
+				bone.position = bone.position + skeletonDrawOffset;
+				parent.position = parent.position + skeletonDrawOffset;
+				
+				DrawLine(bone.position, parent.position, 0.f, 0.8f, 1.f);
+				DrawBoneNode(bone, 0.5f, { 1.f, 0.6f, 0.f });
+				continue;
+			}
+			Bone bone = { bones[i].position + skeletonDrawOffset, bones[i].rotation };
+
+			DrawBoneNode(bone, 1.f, { 1.f, 0.f, 0.f });
+		}
 	}
 
 	virtual void Update(float frameTime) override
@@ -115,40 +175,19 @@ class CSimulation : public ISimulation
 		// Z axis
 		DrawLine(0, 0, 0, 0, 0, 100, 0, 0, 1);
 
-		size_t boneCount = GetSkeletonBoneCount();
+		Bone leftLowerarm;
+		GetSkeletonBoneLocalBindTransform(GetSkeletonBoneIndex("lowerarm_l"), leftLowerarm.position, leftLowerarm.rotation);
 
-		for (int i = 0; (size_t)i < boneCount; i++)
-		{
-			std::string boneName = GetSkeletonBoneName(i);
-			if (boneName.substr(0, 3) == "ik_")
-				continue;
+		Maths::mat4x4* skelMatrixArray = GetSkeletonMatrixArray();
+		float skelMatrixFloat[64 * 16];
+		
+		for (int i = 0; i < 64; i++)
+			for (int j = 0; j < 16; j++)
+				skelMatrixFloat[i * 16 + j] = skelMatrixArray[i].e[j];
 
-			int parentIndex = GetSkeletonBoneParentIndex(i);
-			if (parentIndex >= 0)
-			{
-				Bone parent, bone;
-				GetSkeletonBoneLocalBindTransform(parentIndex, parent.position, parent.rotation);
-				GetSkeletonBoneLocalBindTransform(i, bone.position, bone.rotation);
+		SetSkinningPose(skelMatrixFloat, 64);
 
- 				bone = GetParentRelativeBone(parentIndex, bone);
-				parent = GetParentRelativeBone(GetSkeletonBoneParentIndex(parentIndex), parent);
-				bone.position = bone.position + skeletonDrawOffset; 
-				parent.position = parent.position + skeletonDrawOffset;
-				// draw bone
-				DrawLine(bone.position, parent.position, 0.f, 0.8f, 1.f);
-				// draw bone origin only
-				DrawLine(bone.position + Maths::Vector3{ -0.5f, 0.f, 0.5f }, bone.position - Maths::Vector3{ -0.5f, 0.f, 0.5f }, 1.f, 0.6f, 0.f);
-				DrawLine(bone.position + Maths::Vector3{ 0.5f, 0.f, 0.5f }, bone.position - Maths::Vector3{ 0.5f, 0.f, 0.5f }, 1.f, 0.6f, 0.f);
-				continue;
-			}
-			Bone bone;
-			GetSkeletonBoneLocalBindTransform(i, bone.position, bone.rotation);
-			bone.position = bone.position + skeletonDrawOffset;
-
-			DrawLine(bone.position + Maths::Vector3{ -1.f, 0.f, 1.f }, bone.position - Maths::Vector3{ -1.f, 0.f, 1.f }, 1.f, 0.f, 0.f);
-			DrawLine(bone.position + Maths::Vector3{ 1.f, 0.f, 1.f }, bone.position - Maths::Vector3{1.f, 0.f, 1.f}, 1.f, 0.f, 0.f);
-
-		}
+		DrawSkeleton();
 	}
 };
 
@@ -159,4 +198,3 @@ int main()
 
     return 0;
 }
-
