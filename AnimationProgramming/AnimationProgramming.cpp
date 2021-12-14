@@ -6,12 +6,14 @@
 #include "Engine.h"
 #include "Simulation.h"
 
-#include <thread>
+//#include <cstdlib>
 
 class CSimulation : public ISimulation
 {
 	virtual void Init() override
 	{
+		//system("pause");
+
 		int spine01 =	GetSkeletonBoneIndex("spine_01");
 		int spineParent = GetSkeletonBoneParentIndex(spine01);
 		const char* spineParentName = GetSkeletonBoneName(spineParent);
@@ -20,7 +22,6 @@ class CSimulation : public ISimulation
 		size_t keyCount = GetAnimKeyCount("ThirdPersonWalk.anim");
 		GetAnimLocalBoneTransform("ThirdPersonWalk.anim", spineParent, keyCount / 2, posX, posY, posZ, quatW, quatX, quatY, quatZ);
 		
-		std::this_thread::sleep_for(std::chrono::milliseconds(750));
 		printf("Spine parent bone : %s\n", spineParentName);
 		printf("Anim key count : %ld\n", keyCount);
 		printf("Anim key : pos(%.2f,%.2f,%.2f) rotation quat(%.10f,%.10f,%.10f,%.10f)\n", posX, posY, posZ, quatW, quatX, quatY, quatZ);
