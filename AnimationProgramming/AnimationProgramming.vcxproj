@@ -167,6 +167,10 @@
     <ClCompile Include="Maths.cpp" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Data\Resources\skinning.ps" />
+    <None Include="..\Data\Resources\skinning.vs" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

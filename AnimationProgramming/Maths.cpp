@@ -2,8 +2,6 @@
 #include "Maths.hpp"
 #include "Constants.hpp"
 
-#define _USE_MATH_DEFINES
-#include <cmath>
 #include <iostream>
 
 // These are functions coming from raymath.h, mandatory for the collision/intersection functions
@@ -852,8 +850,8 @@ mat4x4 mat4::perspective(float fovY, float aspect, float near, float far)
 
 mat4x4 mat4::orthographic(float fovY, float aspect, float near, float far)
 {
-	float top = ORTHOGRAPHIC_SRC_SIZE;
-	float bottom = -ORTHOGRAPHIC_SRC_SIZE;
+	float top = 10;
+	float bottom = -10;
 	float right = top * aspect;
 	float left = -right;
 	near;
@@ -966,7 +964,7 @@ Quaternion Maths::QuaternionNormalize(Quaternion q)
 
 	float length;
 	length = QuaternionLength(q);
-	if (length == 0.0f) return;
+	if (length == 0.0f) return q;
 
 	result.x = q.x / length;
 	result.y = q.y / length;
