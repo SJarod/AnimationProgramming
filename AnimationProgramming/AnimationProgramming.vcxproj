@@ -159,12 +159,14 @@
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Maths.hpp" />
     <ClInclude Include="Simulation.h" />
+    <ClInclude Include="skeletalmesh.hpp" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AnimationProgramming.cpp" />
     <ClCompile Include="Maths.cpp" />
+    <ClCompile Include="skeletalmesh.cpp" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
