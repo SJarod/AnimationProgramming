@@ -259,7 +259,7 @@ bool Maths::intersectSegmentCapsule(const Vector3& p1, const Vector3& p2, const 
 bool Maths::intersectSegmentQuad(const Vector3& p1, const Vector3& p2, const Quad& quad, Vector3& intersectPt, Vector3& intersectNormal)
 {
 	Quaternion quaternion = QuaternionFromEuler(quad.rotation.x, quad.rotation.y, quad.rotation.z);
-	Vector3 normal = normalizeVector3(Vector3RotateByQuaternion({ 0.0f, 1.0f, 0.0f }, quaternion));
+	Vector3 normal = normalizeVector3(RotateVectorByQuaternion({ 0.0f, 1.0f, 0.0f }, quaternion));
 
 	Plane plane(normal, quad.center);
 
@@ -267,8 +267,8 @@ bool Maths::intersectSegmentQuad(const Vector3& p1, const Vector3& p2, const Qua
 	if (!intersectSegmentPlane(p1, p2, plane, planeIntersection, intersectNormal))
 		return false;
 
-	Vector3 i = normalizeVector3(Vector3RotateByQuaternion({ 0.0f, 0.0f, 1.0f }, quaternion));
-	Vector3 j = normalizeVector3(Vector3RotateByQuaternion({ 1.0f, 0.0f, 0.0f }, quaternion));
+	Vector3 i = normalizeVector3(RotateVectorByQuaternion({ 0.0f, 0.0f, 1.0f }, quaternion));
+	Vector3 j = normalizeVector3(RotateVectorByQuaternion({ 1.0f, 0.0f, 0.0f }, quaternion));
 	Vector3 vect = planeIntersection - quad.center;
 
 	if (fabs(dotVector3(j, vect)) > quad.width / 2 || fabs(dotVector3(i, vect)) > quad.length / 2)
@@ -301,9 +301,9 @@ bool Maths::intersectSegmentBox(const Vector3& p1, const Vector3& p2, const Box&
 	intersectPt = { BOX_MAX_RANGE, 0, 0 };
 	Quaternion quaternion = QuaternionFromEuler(box.rotation.x, box.rotation.y, box.rotation.z);
 
-	Vector3 i = Vector3RotateByQuaternion({ 1.0f, 0.0f, 0.0f }, quaternion);
-	Vector3 j = Vector3RotateByQuaternion({ 0.0f, 1.0f, 0.0f }, quaternion);
-	Vector3 k = Vector3RotateByQuaternion({ 0.0f, 0.0f, 1.0f }, quaternion);
+	Vector3 i = RotateVectorByQuaternion({ 1.0f, 0.0f, 0.0f }, quaternion);
+	Vector3 j = RotateVectorByQuaternion({ 0.0f, 1.0f, 0.0f }, quaternion);
+	Vector3 k = RotateVectorByQuaternion({ 0.0f, 0.0f, 1.0f }, quaternion);
 
 	Vector3 intersectPtTests = {};
 	Vector3 intersectNormalTests = {};
@@ -377,9 +377,9 @@ void intersectSegmentRBoxFaces(const Vector3& p1, const Vector3& p2, const Maths
 {
 	Quaternion quaternion = QuaternionFromEuler(box.rotation.x, box.rotation.y, box.rotation.z);
 
-	Vector3 i = Vector3RotateByQuaternion({ 1.0f, 0.0f, 0.0f }, quaternion);
-	Vector3 j = Vector3RotateByQuaternion({ 0.0f, 1.0f, 0.0f }, quaternion);
-	Vector3 k = Vector3RotateByQuaternion({ 0.0f, 0.0f, 1.0f }, quaternion);
+	Vector3 i = RotateVectorByQuaternion({ 1.0f, 0.0f, 0.0f }, quaternion);
+	Vector3 j = RotateVectorByQuaternion({ 0.0f, 1.0f, 0.0f }, quaternion);
+	Vector3 k = RotateVectorByQuaternion({ 0.0f, 0.0f, 1.0f }, quaternion);
 
 	Vector3 intersectPtTests = { BOX_MAX_RANGE, 0, 0 };
 	Vector3 intersectNormalTests = {};
@@ -448,9 +448,9 @@ void intersectSegmentRBoxCapsules(const Vector3& p1, const Vector3& p2, const Ma
 {
 	Quaternion quaternion = QuaternionFromEuler(box.rotation.x, box.rotation.y, box.rotation.z);
 
-	Vector3 i = Vector3RotateByQuaternion({ 1.0f, 0.0f, 0.0f }, quaternion);
-	Vector3 j = Vector3RotateByQuaternion({ 0.0f, 1.0f, 0.0f }, quaternion);
-	Vector3 k = Vector3RotateByQuaternion({ 0.0f, 0.0f, 1.0f }, quaternion);
+	Vector3 i = RotateVectorByQuaternion({ 1.0f, 0.0f, 0.0f }, quaternion);
+	Vector3 j = RotateVectorByQuaternion({ 0.0f, 1.0f, 0.0f }, quaternion);
+	Vector3 k = RotateVectorByQuaternion({ 0.0f, 0.0f, 1.0f }, quaternion);
 
 	Vector3 intersectPtTests = { BOX_MAX_RANGE, 0, 0 };
 	Vector3 intersectNormalTests = {};
@@ -499,9 +499,9 @@ void intersectSegmentRBoxCylinders(const Vector3& p1, const Vector3& p2, const M
 {
 	Quaternion quaternion = QuaternionFromEuler(box.rotation.x, box.rotation.y, box.rotation.z);
 
-	Vector3 i = Vector3RotateByQuaternion({ 1.0f, 0.0f, 0.0f }, quaternion);
-	Vector3 j = Vector3RotateByQuaternion({ 0.0f, 1.0f, 0.0f }, quaternion);
-	Vector3 k = Vector3RotateByQuaternion({ 0.0f, 0.0f, 1.0f }, quaternion);
+	Vector3 i = RotateVectorByQuaternion({ 1.0f, 0.0f, 0.0f }, quaternion);
+	Vector3 j = RotateVectorByQuaternion({ 0.0f, 1.0f, 0.0f }, quaternion);
+	Vector3 k = RotateVectorByQuaternion({ 0.0f, 0.0f, 1.0f }, quaternion);
 
 	Vector3 intersectPtTests = { BOX_MAX_RANGE, 0, 0 };
 	Vector3 intersectNormalTests = {};
@@ -628,9 +628,9 @@ bool Maths::collisionSphereBox(const Sphere& sphere, const Box& box)
 {
 	/*Quaternion quaternion = QuaternionFromEuler(box.rotation.x, box.rotation.y, box.rotation.z);
 
-	Vector3 i = Vector3RotateByQuaternion({ 1.0f, 0.0f, 0.0f }, quaternion);
-	Vector3 j = Vector3RotateByQuaternion({ 0.0f, 1.0f, 0.0f }, quaternion);
-	Vector3 k = Vector3RotateByQuaternion({ 0.0f, 0.0f, 1.0f }, quaternion);
+	Vector3 i = RotateVectorByQuaternion({ 1.0f, 0.0f, 0.0f }, quaternion);
+	Vector3 j = RotateVectorByQuaternion({ 0.0f, 1.0f, 0.0f }, quaternion);
+	Vector3 k = RotateVectorByQuaternion({ 0.0f, 0.0f, 1.0f }, quaternion);
 
 	Vector3 boxToSphere = sphere.center - box.center;
 	Sphere localSphere = { {dotVector3(boxToSphere, i), dotVector3(boxToSphere, j), dotVector3(boxToSphere, k)}, sphere.radius };
@@ -695,7 +695,7 @@ bool Maths::collisionSphereSphere(const Sphere& sphere1, const Sphere& sphere2)
 #pragma endregion
 
 #pragma region VEC2
-int Maths::vec2::compareVector2(const Vector2& vector1, const Vector2& vector2, float epsilon)
+int Maths::compareVector2(const Vector2& vector1, const Vector2& vector2, float epsilon)
 {
     if (vector1.x <= (vector2.x + epsilon) && vector1.x >= (vector2.x - epsilon))
         if (vector1.y <= (vector2.y + epsilon) && vector1.y >= (vector2.y - epsilon))
@@ -706,31 +706,31 @@ int Maths::vec2::compareVector2(const Vector2& vector1, const Vector2& vector2, 
         return 1;
 }
 
-float Maths::vec2::lengthVector2(const Vector2& vector)
+float Maths::lengthVector2(const Vector2& vector)
 {
     float len = sqrtf((vector.x * vector.x) + (vector.y * vector.y));
 
     return len;
 }
 
-float Maths::vec2::squaredLengthVector2(const Vector2& vector)
+float Maths::squaredLengthVector2(const Vector2& vector)
 {
     return (vector.x * vector.x) + (vector.y * vector.y);
 }
 
-float Maths::vec2::pointsDistance(const Vector2& p1, const Vector2& p2)
+float Maths::pointsDistance(const Vector2& p1, const Vector2& p2)
 {
     Vector2 vector = { p2.x - p1.x, p2.y - p1.y };
 
     return lengthVector2(vector);
 }
 
-float Maths::vec2::dotProductVector2(const Vector2& vector1, const Vector2& vector2)
+float Maths::dotProductVector2(const Vector2& vector1, const Vector2& vector2)
 {
     return ((vector1.x * vector2.x) + (vector1.y * vector2.y));
 }
 
-float Maths::vec2::angleVector2(const Vector2& vector1, const Vector2& vector2)
+float Maths::angleVector2(const Vector2& vector1, const Vector2& vector2)
 {
     if ((vector1.x == 0 && vector1.y == 0) || (vector2.x == 0 && vector2.y == 0))
         return 0;
@@ -740,13 +740,13 @@ float Maths::vec2::angleVector2(const Vector2& vector1, const Vector2& vector2)
     return atan2(num, dot);
 }
 
-float Maths::vec2::angleDegVector2(const Vector2& vector1, const Vector2& vector2)
+float Maths::angleDegVector2(const Vector2& vector1, const Vector2& vector2)
 {
     float angle = angleVector2(vector1, vector2);
     return (float)(angle * 180 / 3.1415f);
 }
 
-Maths::Vector2 Maths::vec2::additionVector2(const Vector2& vector1, const Vector2& vector2)
+Maths::Vector2 Maths::additionVector2(const Vector2& vector1, const Vector2& vector2)
 {
     Vector2 resVect = {};
     resVect.x = vector1.x + vector2.x;
@@ -754,7 +754,7 @@ Maths::Vector2 Maths::vec2::additionVector2(const Vector2& vector1, const Vector
     return resVect;
 }
 
-Maths::Vector2 Maths::vec2::negateVector2(const Vector2& vector)
+Maths::Vector2 Maths::negateVector2(const Vector2& vector)
 {
     Vector2 resVect;
     resVect.x = -vector.x;
@@ -763,7 +763,7 @@ Maths::Vector2 Maths::vec2::negateVector2(const Vector2& vector)
     return resVect;
 }
 
-Maths::Vector2 Maths::vec2::unitVector2(Vector2& vector)
+Maths::Vector2 Maths::unitVector2(Vector2& vector)
 {
     float len = lengthVector2(vector);
     vector.y /= len;
@@ -771,7 +771,7 @@ Maths::Vector2 Maths::vec2::unitVector2(Vector2& vector)
     return vector;
 }
 
-Maths::Vector2 Maths::vec2::substractVector2(const Vector2& vector1, const Vector2& vector2)
+Maths::Vector2 Maths::substractVector2(const Vector2& vector1, const Vector2& vector2)
 {
     Vector2 tempVect = negateVector2(vector2);
 
@@ -780,7 +780,7 @@ Maths::Vector2 Maths::vec2::substractVector2(const Vector2& vector1, const Vecto
     return resVect;
 }
 
-Maths::Vector2 Maths::vec2::scaleVector2(const Vector2& vector, float scale)
+Maths::Vector2 Maths::scaleVector2(const Vector2& vector, float scale)
 {
     Vector2 resVect;
     resVect.x = scale * vector.x;
@@ -789,7 +789,7 @@ Maths::Vector2 Maths::vec2::scaleVector2(const Vector2& vector, float scale)
     return resVect;
 }
 
-void Maths::vec2::vectRotate(Vector2& vector, float angle)
+void Maths::vectRotate(Vector2& vector, float angle)
 {
     float x = vector.x;
 
@@ -797,7 +797,7 @@ void Maths::vec2::vectRotate(Vector2& vector, float angle)
     vector.y = x * sinf(angle) + vector.y * cosf(angle);
 }
 
-void Maths::vec2::pointRotate(const Vector2& origin, Vector2& point, float angle)
+void Maths::pointRotate(const Vector2& origin, Vector2& point, float angle)
 {
     Vector2 vect = { point.x - origin.x, point.y - origin.y };
     vectRotate(vect, angle);
@@ -806,7 +806,7 @@ void Maths::vec2::pointRotate(const Vector2& origin, Vector2& point, float angle
     point.y = vect.y + origin.y;
 }
 
-void Maths::vec2::vectRotate90(Vector2& vector)
+void Maths::vectRotate90(Vector2& vector)
 {
     float x = vector.x;
 
@@ -814,7 +814,7 @@ void Maths::vec2::vectRotate90(Vector2& vector)
     vector.y = x;
 }
 
-Maths::Vector2 Maths::vec2::normalVector2(const Vector2& vector)
+Maths::Vector2 Maths::normalVector2(const Vector2& vector)
 {
     Vector2 retVect = { vector.x, vector.y };
     vectRotate90(retVect);
@@ -890,7 +890,7 @@ mat4x4 mat4::frustum(float left, float right, float bottom, float top, float nea
 #pragma region QUATERNIONS
 Vector3 Maths::QuaternionToEulerRadians(Quaternion q)
 {
-    Vector3 result = { 0 };
+    Vector3 result = {};
 
     // roll (x-axis rotation)
     float x0 = 2.0f * (q.w * q.x + q.y * q.z);
@@ -913,7 +913,7 @@ Vector3 Maths::QuaternionToEulerRadians(Quaternion q)
 
 Quaternion Maths::QuaternionFromEuler(float roll, float pitch, float yaw)
 {
-	Quaternion q = { 0 };
+	Quaternion q = {};
 
 	float x0 = cosf(roll * 0.5f);
 	float x1 = sinf(roll * 0.5f);
@@ -930,13 +930,19 @@ Quaternion Maths::QuaternionFromEuler(float roll, float pitch, float yaw)
 	return q;
 }
 
-Vector3 Maths::Vector3RotateByQuaternion(Vector3 v, Quaternion q)
+Vector3 Maths::RotateVectorByQuaternion(Vector3 v, Quaternion q)
 {
-	Vector3 result = { 0 };
+	Vector3 result = {};
 
-	result.x = v.x * (q.x * q.x + q.w * q.w - q.y * q.y - q.z * q.z) + v.y * (2 * q.x * q.y - 2 * q.w * q.z) + v.z * (2 * q.x * q.z + 2 * q.w * q.y);
-	result.y = v.x * (2 * q.w * q.z + 2 * q.x * q.y) + v.y * (q.w * q.w - q.x * q.x + q.y * q.y - q.z * q.z) + v.z * (-2 * q.w * q.x + 2 * q.y * q.z);
-	result.z = v.x * (-2 * q.w * q.y + 2 * q.x * q.z) + v.y * (2 * q.w * q.x + 2 * q.y * q.z) + v.z * (q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z);
+	result.x = v.x * (q.x * q.x + q.w * q.w - q.y * q.y - q.z * q.z) 
+		+ v.y * (2 * q.x * q.y - 2 * q.w * q.z) 
+		+ v.z * (2 * q.x * q.z + 2 * q.w * q.y);
+	result.y = v.x * (2 * q.w * q.z + 2 * q.x * q.y) 
+		+ v.y * (q.w * q.w - q.x * q.x + q.y * q.y - q.z * q.z) 
+		+ v.z * (-2 * q.w * q.x + 2 * q.y * q.z);
+	result.z = v.x * (-2 * q.w * q.y + 2 * q.x * q.z) 
+		+ v.y * (2 * q.w * q.x + 2 * q.y * q.z) 
+		+ v.z * (q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z);
 
 	return result;
 }

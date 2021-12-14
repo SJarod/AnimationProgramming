@@ -1,8 +1,8 @@
 #pragma once
+
 #include <cmath>
 #include <iostream>
-
-#define M_PI       3.14159265358979323846
+#include "Constants.hpp"
 
 namespace Maths
 {
@@ -48,7 +48,7 @@ namespace Maths
 		float x;
 		float y;
 		float z;
-		float w;
+		float w; // scalar
 	};
 
 	union mat4x4
@@ -123,45 +123,25 @@ namespace Maths
 	};
 
 	// FUNCTIONS
-	namespace mat4
-	{
-		// MAT4 FUNCTIONS
-		mat4x4 perspective(float fovY, float aspect, float near, float far);
-		mat4x4 orthographic(float fovY, float aspect, float near, float far);
-		mat4x4 frustum(float left, float right, float bottom, float top, float near, float far);
-		inline mat4x4 identity()
-		{
-			return {
-				1.f, 0.f, 0.f, 0.f,
-				0.f, 1.f, 0.f, 0.f,
-				0.f, 0.f, 1.f, 0.f,
-				0.f, 0.f, 0.f, 1.f,
-			};
-		}
-	}
-	
-	namespace vec2
-	{
-		// VECTOR2 CALCULATIONS
-		int compareVector2(const Vector2& vector1, const Vector2& vector2, float epsilon);
-		float lengthVector2(const Vector2& vector);
-		float squaredLengthVector2(const Vector2& vector);
-		float pointsDistance(const Vector2& p1, const Vector2& p2);
-		float dotProductVector2(const Vector2& vector1, const Vector2& vector2);
-		float angleVector2(const Vector2& vector1, const Vector2& vector2);
-		float angleDegVector2(const Vector2& vector1, const Vector2& vector2);
+	// VECTOR2 CALCULATIONS
+	int compareVector2(const Vector2& vector1, const Vector2& vector2, float epsilon);
+	float lengthVector2(const Vector2& vector);
+	float squaredLengthVector2(const Vector2& vector);
+	float pointsDistance(const Vector2& p1, const Vector2& p2);
+	float dotProductVector2(const Vector2& vector1, const Vector2& vector2);
+	float angleVector2(const Vector2& vector1, const Vector2& vector2);
+	float angleDegVector2(const Vector2& vector1, const Vector2& vector2);
 
-		// VECTOR2 MANIPULATION
-		Vector2 additionVector2(const Vector2& vector1, const Vector2& vector2);
-		Vector2 negateVector2(const Vector2& vector);
-		Vector2 unitVector2(Vector2& vector);
-		Vector2 substractVector2(const Vector2& vector1, const Vector2& vector2);
-		Vector2 scaleVector2(const Vector2& vector, float scale);
-		Vector2 normalVector2(const Vector2& vector);
-		void vectRotate(Vector2& vector, float angle);
-		void vectRotate90(Vector2& vector);
-		void pointRotate(const Vector2& origin, Vector2& point, float angle);
-	}
+	// VECTOR2 MANIPULATION
+	Vector2 additionVector2(const Vector2& vector1, const Vector2& vector2);
+	Vector2 negateVector2(const Vector2& vector);
+	Vector2 unitVector2(Vector2& vector);
+	Vector2 substractVector2(const Vector2& vector1, const Vector2& vector2);
+	Vector2 scaleVector2(const Vector2& vector, float scale);
+	Vector2 normalVector2(const Vector2& vector);
+	void vectRotate(Vector2& vector, float angle);
+	void vectRotate90(Vector2& vector);
+	void pointRotate(const Vector2& origin, Vector2& point, float angle);
 
 	// VECTOR3 FUNCTIONS
 	inline Vector3 nullVector3() { return { 0.f, 0.f, 0.f }; };
@@ -190,7 +170,7 @@ namespace Maths
 	bool collisionSphereSphere(const Sphere& sphere1, const Sphere& sphere2);
 
 	// QUATERNION FUNCTIONS
-	Vector3 Vector3RotateByQuaternion(Vector3 v, Quaternion q);
+	Vector3 RotateVectorByQuaternion(Vector3 v, Quaternion q);
 	Vector3 QuaternionToEulerRadians(Quaternion q);
 	float QuaternionLength(Quaternion q);
 	Quaternion QuaternionFromEuler(float roll, float pitch, float yaw);
@@ -198,12 +178,118 @@ namespace Maths
 	Quaternion QuaternionNormalize(Quaternion q);
 	Quaternion QuaternionFromAxisAngle(Vector3 axis, float angle);
 
+	// WORLD/LOCAL SPACE FUNCTIONS
+
+
 	// OTHER FUNCTIONS
 	float getFloatsMin4(float num1, float num2, float num3, float num4);
 	float getFloatsMin4(Vector4 vec);
 	float getFloatsMax4(float num1, float num2, float num3, float num4);
 	float clamp(float toClamp, float min, float max);
 	int clamp(int toClamp, int min, int max);
+
+	namespace mat4
+	{
+		// MAT4 FUNCTIONS
+		mat4x4 perspective(float fovY, float aspect, float near, float far);
+		mat4x4 orthographic(float fovY, float aspect, float near, float far);
+		mat4x4 frustum(float left, float right, float bottom, float top, float near, float far);
+		
+		inline mat4x4 identity()
+		{
+			return {
+				1.f, 0.f, 0.f, 0.f,
+				0.f, 1.f, 0.f, 0.f,
+				0.f, 0.f, 1.f, 0.f,
+				0.f, 0.f, 0.f, 1.f,
+			};
+		}
+
+		inline mat4x4 MakeRotationMatFromQuaternion(Quaternion q)
+		{
+			return {
+				2.f * (q.w * q.w + q.x + q.x) - 1.f,	2.f * (q.x * q.y - q.w * q.z),			2.f * (q.x * q.z + q.w * q.y),		 0,
+				2.f * (q.x * q.y + q.w * q.z),			2.f * (q.w * q.w + q.y + q.y) - 1.f,	2.f * (q.y * q.z - q.w * q.x),		 0,
+				2.f * (q.x * q.z - q.w * q.y),			2.f * (q.y * q.z + q.w * q.x),			2.f * (q.w * q.w + q.z + q.z) - 1.f, 0,
+				0,										0,										0,									 0
+			};
+		}
+
+		inline Maths::mat4x4 rotateX(float angleRadians)
+		{
+			return {
+				1,                   0,                  0,                 0,
+				0,                   cos(angleRadians),  sin(angleRadians), 0,
+				0,                   -sin(angleRadians), cos(angleRadians), 0,
+				0,                   0,                  0,                 1
+			};
+		}
+
+		inline Maths::mat4x4 rotateY(float angleRadians)
+		{
+			return {
+				cos(angleRadians), 0, -sin(angleRadians), 0,
+				0, 1,  0, 0,
+				sin(angleRadians), 0, cos(angleRadians), 0,
+				0, 0, 0, 1
+			};
+		}
+
+		inline Maths::mat4x4 rotateZ(float angleRadians)
+		{
+			return {
+				cos(angleRadians),  sin(angleRadians),   0,                 0,
+				-sin(angleRadians), cos(angleRadians),   0,					0,
+				0,                   0,					 1,					0,
+				0,                   0,                  0,                 1
+			};
+		}
+
+		inline Maths::mat4x4 scale(float scale)
+		{
+			if (scale == 0)
+				scale = 0.0001f;
+
+			return {
+				scale, 0.f, 0.f, 0.f,
+				0.f, scale, 0.f, 0.f,
+				0.f, 0.f, scale, 0.f,
+				0.0f, 0.0f, 0.f, 1.f,
+			};
+		}
+
+		inline Maths::mat4x4 scale(Maths::Vector3 scale)
+		{
+			if (Maths::lengthVector3(scale) == 0)
+				scale.x = 0.0001f;
+
+			return {
+				scale.x, 0.f,     0.f,     0.f,
+				0.f,     scale.y, 0.f,     0.f,
+				0.f,     0.f,     scale.z, 0.f,
+				0.0f,    0.0f,    0.f,     1.f,
+			};
+		}
+
+		inline Maths::mat4x4 translate(Vector3 translate)
+		{
+#ifdef HORIZONTAL_MATRIX
+			return {
+				1, 0, 0, 0,
+				0, 1, 0, 0,
+				0, 0, 1, 0,
+				translate.x, translate.y, translate.z, 1
+			};
+#else
+			return {
+				1, 0, 0, translate.x,
+				0, 1, 0, translate.y,
+				0, 0, 1, translate.z,
+				0, 0, 0, 1
+			};
+#endif
+		}
+	}
 }
 
 // MATHS OPERATORS

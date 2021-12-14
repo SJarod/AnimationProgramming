@@ -9,14 +9,21 @@
 
 //#include <cstdlib>
 
+struct Bone
+{
+	Maths::Vector3 position = {};
+	Maths::Quaternion rotation = {};
+};
+
+#pragma region ENGINE_TYPED_FUNCTIONS
 void GetSkeletonBoneLocalBindTransform(int boneIndex, Maths::Vector3& pos, Maths::Quaternion& q)
 {
-	GetSkeletonBoneLocalBindTransform(boneIndex, pos.x, pos.y, pos.z, q.x, q.y, q.z, q.w);
+	GetSkeletonBoneLocalBindTransform(boneIndex, pos.x, pos.y, pos.z, q.w, q.x, q.y, q.z);
 }
 
 void GetAnimLocalBoneTransform(const char* animName, int boneIndex, int keyFrameIndex, Maths::Vector3& pos, Maths::Quaternion& q)
 {
-	GetAnimLocalBoneTransform(animName, boneIndex, keyFrameIndex, pos.x, pos.y, pos.z, q.x, q.y, q.z, q.w);
+	GetAnimLocalBoneTransform(animName, boneIndex, keyFrameIndex, pos.x, pos.y, pos.z, q.w, q.x, q.y, q.z);
 }
 
 void DrawLine(Maths::Vector3 pos1, Maths::Vector3 pos2, float r, float g, float b)
@@ -24,9 +31,61 @@ void DrawLine(Maths::Vector3 pos1, Maths::Vector3 pos2, float r, float g, float 
 	DrawLine(pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z, r, g, b);
 }
 
+Maths::Vector3 GetAnimGlobalPos(const char* animName, int boneIndex, int keyFrameIndex)
+{
+	if (boneIndex == 0)
+	{
+		Maths::Vector3 pos;
+		Quaternion q;
+		GetAnimLocalBoneTransform(animName, boneIndex, keyFrameIndex, pos.x, pos.y, pos.z, q.w, q.x, q.y, q.z);
+
+		return pos;
+	}
+
+	Maths::Vector3 pos;
+	Quaternion q;
+	GetAnimLocalBoneTransform(animName, boneIndex, keyFrameIndex, pos.x, pos.y, pos.z, q.w, q.x, q.y, q.z);
+
+	return pos + GetAnimGlobalPos(animName, GetSkeletonBoneParentIndex(boneIndex), keyFrameIndex);
+}
+#pragma endregion
+
+#pragma region OTHER
+Maths::Vector3 GetParentRelativePos(int parentIndex, Bone bone)
+{
+	Bone parent;
+	GetSkeletonBoneLocalBindTransform(parentIndex, parent.position, parent.rotation);
+
+	int parentsParent = GetSkeletonBoneParentIndex(parentIndex);
+
+	if (parentsParent <= -1)
+		return parent.position + Maths::RotateVectorByQuaternion(bone.position, parent.rotation);
+
+	return GetParentRelativePos(parentsParent, parent);
+}
+
+Bone GetParentRelativeBone(int parentIndex, Bone& bone)
+{
+	if (parentIndex <= -1) return {};
+	Bone parent;
+	GetSkeletonBoneLocalBindTransform(parentIndex, parent.position, parent.rotation);
+
+	int parentsParent = GetSkeletonBoneParentIndex(parentIndex);
+
+	if (parentsParent <= -1)
+		return { parent.position + Maths::RotateVectorByQuaternion(bone.position, parent.rotation), QuaternionMultiply(parent.rotation, bone.rotation) };
+
+	parent = GetParentRelativeBone(parentsParent, parent);
+	return { parent.position + Maths::RotateVectorByQuaternion(bone.position, parent.rotation), QuaternionMultiply(parent.rotation, bone.rotation) };
+
+	//return {};
+}
+#pragma endregion
+
+
 class CSimulation : public ISimulation
 {
-	Maths::Vector3 skeletonDrawOffset = { 0.f, -100.f, 0.f };
+	Maths::Vector3 skeletonDrawOffset = { 0.f, -20.f, 0.f };
 	
 	virtual void Init() override
 	{
@@ -60,25 +119,34 @@ class CSimulation : public ISimulation
 
 		for (int i = 0; (size_t)i < boneCount; i++)
 		{
-			int parentIndex = GetSkeletonBoneParentIndex(i);
-			if (parentIndex != -1)
-			{
-				Maths::Vector3 parentPos, bonePos;
-				Maths::Quaternion parentRot, boneRot;
-				GetSkeletonBoneLocalBindTransform(parentIndex, parentPos, parentRot);
-				GetSkeletonBoneLocalBindTransform(i, bonePos, boneRot);
+			std::string boneName = GetSkeletonBoneName(i);
+			if (boneName.substr(0, 3) == "ik_")
+				continue;
 
-				bonePos = bonePos + skeletonDrawOffset;
-				parentPos = parentPos + skeletonDrawOffset;
-				DrawLine(bonePos, parentPos, 0.f, 0.8f, 1.f);
+			int parentIndex = GetSkeletonBoneParentIndex(i);
+			if (parentIndex >= 0)
+			{
+				Bone parent, bone;
+				GetSkeletonBoneLocalBindTransform(parentIndex, parent.position, parent.rotation);
+				GetSkeletonBoneLocalBindTransform(i, bone.position, bone.rotation);
+
+ 				bone = GetParentRelativeBone(parentIndex, bone);
+				parent = GetParentRelativeBone(GetSkeletonBoneParentIndex(parentIndex), parent);
+				bone.position = bone.position + skeletonDrawOffset; 
+				parent.position = parent.position + skeletonDrawOffset;
+				// draw bone
+				DrawLine(bone.position, parent.position, 0.f, 0.8f, 1.f);
+				// draw bone origin only
+				DrawLine(bone.position + Maths::Vector3{ -0.5f, 0.f, 0.5f }, bone.position - Maths::Vector3{ -0.5f, 0.f, 0.5f }, 1.f, 0.6f, 0.f);
+				DrawLine(bone.position + Maths::Vector3{ 0.5f, 0.f, 0.5f }, bone.position - Maths::Vector3{ 0.5f, 0.f, 0.5f }, 1.f, 0.6f, 0.f);
 				continue;
 			}
-			Maths::Vector3 bonePos;
-			Maths::Quaternion boneRot;
-			GetSkeletonBoneLocalBindTransform(i, bonePos, boneRot);
-			bonePos = bonePos + skeletonDrawOffset;
-			DrawLine(bonePos + Maths::Vector3{-1.f, 0.f, 1.f}, bonePos - Maths::Vector3{-1.f, 0.f, 1.f}, 1.f, 0.f, 0.f);
-			DrawLine(bonePos + Maths::Vector3{1.f, 0.f, 1.f}, bonePos - Maths::Vector3{1.f, 0.f, 1.f}, 1.f, 0.f, 0.f);
+			Bone bone;
+			GetSkeletonBoneLocalBindTransform(i, bone.position, bone.rotation);
+			bone.position = bone.position + skeletonDrawOffset;
+
+			DrawLine(bone.position + Maths::Vector3{ -1.f, 0.f, 1.f }, bone.position - Maths::Vector3{ -1.f, 0.f, 1.f }, 1.f, 0.f, 0.f);
+			DrawLine(bone.position + Maths::Vector3{ 1.f, 0.f, 1.f }, bone.position - Maths::Vector3{1.f, 0.f, 1.f}, 1.f, 0.f, 0.f);
 
 		}
 	}
