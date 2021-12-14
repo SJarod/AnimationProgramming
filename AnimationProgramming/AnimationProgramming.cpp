@@ -9,11 +9,7 @@
 
 //#include <cstdlib>
 
-struct Bone
-{
-	Maths::Vector3 position = {};
-	Maths::Quaternion rotation = {};
-};
+#include "skeletalmesh.hpp"
 
 #pragma region ENGINE TYPED FUNCTIONS
 void GetSkeletonBoneLocalBindTransform(int boneIndex, Maths::Vector3& pos, Maths::Quaternion& q)
@@ -55,17 +51,25 @@ Bone GetParentRelativeBone(int parentIndex, Bone& bone)
 {
 	if (parentIndex <= -1) return {};
 	Bone parent;
-	GetSkeletonBoneLocalBindTransform(parentIndex, parent.position, parent.rotation);
+	GetSkeletonBoneLocalBindTransform(parentIndex, parent.localPos, parent.localRot);
 
 	int parentsParent = GetSkeletonBoneParentIndex(parentIndex);
 
 	if (parentsParent <= -1)
-		return { parent.position + Maths::RotateVectorByQuaternion(bone.position, parent.rotation), QuaternionMultiply(parent.rotation, bone.rotation) };
+	{
+		Bone result;
+		result.name = GetSkeletonBoneName(parentIndex);
+		result.localPos = parent.localPos + Maths::RotateVectorByQuaternion(bone.localPos, parent.localRot);
+		result.localRot = QuaternionMultiply(parent.localRot, bone.localRot);
+		return result;
+	}
 
 	parent = GetParentRelativeBone(parentsParent, parent);
-	return { parent.position + Maths::RotateVectorByQuaternion(bone.position, parent.rotation), QuaternionMultiply(parent.rotation, bone.rotation) };
-
-	//return {};
+	Bone result;
+	result.name = GetSkeletonBoneName(parentIndex);
+	result.localPos = parent.localPos + Maths::RotateVectorByQuaternion(bone.localPos, parent.localRot);
+	result.localRot = QuaternionMultiply(parent.localRot, bone.localRot);
+	return result;
 }
 
 void DrawBoneNode(const Bone& bone, const float size, const Maths::Vector3 color)
@@ -95,6 +99,7 @@ Maths::mat4x4 GetBoneMatrix(const Bone& bone, int parentIndex)
 
 class CSimulation : public ISimulation
 {
+	SkeletalMesh   skmesh;
 	Maths::Vector3 skeletonDrawOffset = { 0.f, -20.f, 0.f };
 	std::vector<Bone> bones;
 	
