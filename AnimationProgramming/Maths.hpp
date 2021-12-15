@@ -187,6 +187,9 @@ namespace Maths
 	float getFloatsMax4(float num1, float num2, float num3, float num4);
 	float clamp(float toClamp, float min, float max);
 	int clamp(int toClamp, int min, int max);
+	float lerp(const float& from, const float& to, const float& t);
+	Vector3 lerp(const Vector3& from, const Vector3& to, const float& t);
+	Quaternion slerp(const Quaternion& from, Quaternion& to, const float& t);
 
 	namespace mat4
 	{

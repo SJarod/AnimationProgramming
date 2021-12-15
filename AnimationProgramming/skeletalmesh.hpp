@@ -9,8 +9,15 @@ class Bone
 public:
 	std::string	name = "";
 
+	//bind pos, t-pose
+	Vector3		bindPos = {};
+	Quaternion	bindRot = {};
+	//current pos
 	Vector3		pos = {};
 	Quaternion	rot = {};
+	//next key frame pos
+	Vector3		nextKeyFramePos = {};
+	Quaternion	nextKeyFrameRot = {};
 
 	int			parent = -1;
 
@@ -31,6 +38,7 @@ public:
 	unsigned int	GetSkeletonSize() const;
 
 	void			SetLocalBoneFromIndex(const int index, const Vector3& pos, const Quaternion& rot);
+	void			SetNextKeyFrameBone(const int index, const Vector3& nextKFPos, const Quaternion& nextKFRot);
 	//returns a bone with local transform
 	Bone			GetLocalBoneFromIndex(const int index) const;
 	//returns a bone with global transform
@@ -44,7 +52,7 @@ public:
 			printf("\t%d - %s\n", i, bones[i].name.c_str());
 	}
 	void DrawSkeleton(const Maths::Vector3& skeletonDrawOffset);
-	void UpdateSkeleton();
+	void UpdateSkeleton(const float& deltaTime);
 
 	Maths::mat4x4*	GetSkeletonMatrixArray();
 	float*			GetSkeletonMatrixFloat();

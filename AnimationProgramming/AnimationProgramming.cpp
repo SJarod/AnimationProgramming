@@ -13,7 +13,7 @@
 class CSimulation : public ISimulation
 {
 	SkeletalMesh   skmesh;
-	Maths::Vector3 skeletonDrawOffset = { 0.f, -20.f, 0.f };
+	Maths::Vector3 skeletonDrawOffset = { -200.f, 0.f, 0.f };
 
 	virtual void Init() override
 	{
@@ -41,6 +41,8 @@ class CSimulation : public ISimulation
 				continue;
 
 			GetSkeletonBoneLocalBindTransform(i, bone.pos, bone.rot);
+			bone.bindPos = bone.pos;
+			bone.bindRot = bone.rot;
 			bone.parent = GetSkeletonBoneParentIndex(i);
 
 			skmesh.AddBone(bone);
@@ -51,7 +53,7 @@ class CSimulation : public ISimulation
 	
 	virtual void Update(float frameTime) override
 	{
-		skmesh.UpdateSkeleton();
+		skmesh.UpdateSkeleton(frameTime);
 
 		// X axis
 		DrawLine(0, 0, 0, 100, 0, 0, 1, 0, 0);

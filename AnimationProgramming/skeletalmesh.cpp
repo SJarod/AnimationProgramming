@@ -37,8 +37,13 @@ void SkeletalMesh::AddBone(const std::string& name, const Vector3& pos, const Qu
 {
 	Bone b;
 	b.name = name;
+
+	b.bindPos = pos;
 	b.pos = pos;
+
+	b.bindRot = rot;
 	b.rot = rot;
+
 	b.parent = parent;
 
 	bones.push_back(b);
@@ -53,6 +58,12 @@ void SkeletalMesh::SetLocalBoneFromIndex(const int index, const Vector3& pos, co
 {
 	bones[index].pos = pos;
 	bones[index].rot = rot;
+}
+
+void SkeletalMesh::SetNextKeyFrameBone(const int index, const Vector3& nextKFPos, const Quaternion& nextKFRot)
+{
+	bones[index].nextKeyFramePos = nextKFPos;
+	bones[index].nextKeyFrameRot = nextKFRot;
 }
 
 Bone SkeletalMesh::GetLocalBoneFromIndex(const int index) const
@@ -80,31 +91,29 @@ const char* SkeletalMesh::GetBoneNameFromIndex(const int index) const
 	return bones[index].name.c_str();
 }
 
-void SkeletalMesh::UpdateSkeleton()
+void SkeletalMesh::UpdateSkeleton(const float& deltaTime)
 {
 	static int currentKeyFrame = 0;
-	static float timer = 0.f;
-	size_t keyCount = GetAnimKeyCount("ThirdPersonWalk.anim");
+	static float timer = 1.f;
+	size_t keyCount = GetAnimKeyCount("ThirdPersonRun.anim");
 
-	for (unsigned int i = 0; i < GetSkeletonSize(); ++i)
-	{
-		Vector3 keyFramePos;
-		Quaternion keyFrameQ;
-		GetAnimLocalBoneTransform("ThirdPersonWalk.anim", i, currentKeyFrame, keyFramePos, keyFrameQ);
-
-		Vector3 tPosePos;
-		Quaternion tPoseQ;
-		GetSkeletonBoneLocalBindTransform(i, tPosePos, tPoseQ);
-
-		SetLocalBoneFromIndex(i, tPosePos + keyFramePos, QuaternionMultiply(tPoseQ, keyFrameQ));
-	}
-
-	timer += 0.1f;
+	timer += deltaTime * 10.f;
 	if (timer >= 1.f)
 	{
+		for (unsigned int i = 0; i < GetSkeletonSize(); ++i)
+		{
+			GetAnimLocalBoneTransform("ThirdPersonRun.anim", i, currentKeyFrame, bones[i].nextKeyFramePos, bones[i].nextKeyFrameRot);
+		}
 		++currentKeyFrame;
 		timer = 0.f;
 	}
+
+	for (unsigned int i = 0; i < GetSkeletonSize(); ++i)
+	{
+		Bone b = GetLocalBoneFromIndex(i);
+		SetLocalBoneFromIndex(i, b.pos, slerp(b.rot, QuaternionMultiply(b.bindRot, b.nextKeyFrameRot), deltaTime * 10.f));
+	}
+
 	if (currentKeyFrame >= (int)keyCount)
 		currentKeyFrame = 0;
 }
