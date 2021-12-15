@@ -82,6 +82,7 @@ const char* SkeletalMesh::GetBoneNameFromIndex(const int index) const
 
 void SkeletalMesh::UpdateSkeleton(float deltaTime)
 {
+	static float movement = 0.f;
 	/*
 	static int currentKeyFrame = 0;
 	static float timer = 0.f;
@@ -111,8 +112,8 @@ void SkeletalMesh::UpdateSkeleton(float deltaTime)
 	*/
 	
 	//bones[1].localPos.z = sinf(movement) * 100.f;
-	bones[1].localPos.y = cosf(movement) * 10.f;
-	bones[2].localRot = Maths::QuaternionFromAxisAngle({ 1.0f, 0.f, 0.f }, sinf(movement / 40) * 6.f);
+	bones[1].pos.y = cosf(movement) * 10.f;
+	bones[2].rot = Maths::QuaternionFromAxisAngle({ 1.0f, 0.f, 0.f }, 6.f);
 	//bones[56].localRot = Maths::QuaternionFromAxisAngle({0.0f, 1.f, 0.f}, cosf(movement / 24) * 4.f);
 
 	movement += deltaTime;
@@ -154,9 +155,9 @@ Maths::mat4x4* SkeletalMesh::GetSkeletonMatrixArray()
 	{
 		if (i < bones.size())
 		{
-			matrix[i] = bones[i].GetBoneMatrix(bones[i].parent);
+			matrix[i] = bones[i].GetBoneMatrix(i);
 
-			matrix[i] = matrix[i] * Maths::mat4::Invert(restBones[i].GetBoneMatrix(restBones[i].parent));
+			matrix[i] = matrix[i] * Maths::mat4::Invert(restBones[i].GetBoneMatrix(i));
 		}
 		else
 			matrix[i] = Maths::mat4::identity();

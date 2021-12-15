@@ -32,10 +32,11 @@ uniform SkinningMatrices
 ////////////////////////////////////////////////////////////////////////////////
 void main(void)
 {
-	mat4 localPosMat = boneWeights[0] * skin.mat[int(boneIndices[0])]
-	+ boneWeights[1] * skin.mat[int(boneIndices[1])] 
-	+ boneWeights[2] * skin.mat[int(boneIndices[2])] 
-	+ boneWeights[3] * skin.mat[int(boneIndices[3])]; 
+	mat4 localPosMat = skin.mat[int(boneIndices[0])];
+	//mat4 localPosMat = boneWeights[0] * skin.mat[int(boneIndices[0])]
+	//+ boneWeights[1] * skin.mat[int(boneIndices[1])] 
+	//+ boneWeights[2] * skin.mat[int(boneIndices[2])] 
+	//+ boneWeights[3] * skin.mat[int(boneIndices[3])]; 
 	
 	vec4 localPos = localPosMat * vec4(inputPosition, 1.f);
 

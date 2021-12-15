@@ -16,7 +16,7 @@ public:
 
 	void DrawBoneNode(const float size, const Maths::Vector3 color);
 
-	Maths::mat4x4 GetBoneMatrix(int parentIndex);
+	Maths::mat4x4 GetBoneMatrix(int index);
 };
 
 class SkeletalMesh

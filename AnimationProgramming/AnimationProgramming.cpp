@@ -15,7 +15,7 @@
 class CSimulation : public ISimulation
 {
 	SkeletalMesh   skmesh;
-	Maths::Vector3 skeletonDrawOffset = { 0.f, -20.f, 0.f };
+	Maths::Vector3 skeletonDrawOffset = { 0.f, -40.f, 0.f };
 
 	virtual void Init() override
 	{
@@ -42,7 +42,7 @@ class CSimulation : public ISimulation
 			if (bone.name.substr(0, 3) == "ik_")
 				continue;
 			
-			GetSkeletonBoneLocalBindTransform(i, bone.localPos, bone.localRot);
+			GetSkeletonBoneLocalBindTransform(i, bone.pos, bone.rot);
 			bone.parent = GetSkeletonBoneParentIndex(i);
 			skmesh.AddBone(bone);
 		}
