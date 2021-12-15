@@ -4,35 +4,17 @@
 #include "stdafx.h"
 
 #include "Engine.h"
+#include "EngineOverloads.h"
 #include "Simulation.h"
 #include "Maths.hpp"
 
-//#include <cstdlib>
-
 #include "skeletalmesh.hpp"
-
-#pragma region ENGINE_TYPED_FUNCTIONS
-void GetSkeletonBoneLocalBindTransform(int boneIndex, Maths::Vector3& pos, Maths::Quaternion& q)
-{
-	GetSkeletonBoneLocalBindTransform(boneIndex, pos.x, pos.y, pos.z, q.w, q.x, q.y, q.z);
-}
-
-void GetAnimLocalBoneTransform(const char* animName, int boneIndex, int keyFrameIndex, Maths::Vector3& pos, Maths::Quaternion& q)
-{
-	GetAnimLocalBoneTransform(animName, boneIndex, keyFrameIndex, pos.x, pos.y, pos.z, q.w, q.x, q.y, q.z);
-}
-
-void DrawLine(Maths::Vector3 pos1, Maths::Vector3 pos2, float r, float g, float b)
-{
-	DrawLine(pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z, r, g, b);
-}
-#pragma endregion
 
 class CSimulation : public ISimulation
 {
 	SkeletalMesh   skmesh;
 	Maths::Vector3 skeletonDrawOffset = { 0.f, -20.f, 0.f };
-	
+
 	virtual void Init() override
 	{
 		//system("pause");
@@ -40,6 +22,7 @@ class CSimulation : public ISimulation
 		int spine01 = GetSkeletonBoneIndex("spine_01");
 		int spineParent = GetSkeletonBoneParentIndex(spine01);
 		const char* spineParentName = GetSkeletonBoneName(spineParent);
+		size_t boneCount = GetSkeletonBoneCount();
 
 		float posX, posY, posZ, quatW, quatX, quatY, quatZ;
 		size_t keyCount = GetAnimKeyCount("ThirdPersonWalk.anim");
@@ -48,11 +31,25 @@ class CSimulation : public ISimulation
 		printf("Spine parent bone : %s\n", spineParentName);
 		printf("Anim key count : %ld\n", keyCount);
 		printf("Anim key : pos(%.2f,%.2f,%.2f) localRot quat(%.10f,%.10f,%.10f,%.10f)\n", posX, posY, posZ, quatW, quatX, quatY, quatZ);
+	
+		for (int i = 0; (size_t)i < boneCount; i++)
+		{
+			Bone bone;
+			bone.name = GetSkeletonBoneName(i);
+
+			if (bone.name.substr(0, 3) == "ik_")
+				continue;
+
+			GetSkeletonBoneLocalBindTransform(i, bone.pos, bone.rot);
+			bone.parent = GetSkeletonBoneParentIndex(i);
+
+			skmesh.AddBone(bone);
+		}
+		
+		skmesh.PrintSkeleton();
 
 		for (int i = 0; i < (int)GetSkeletonBoneCount(); ++i)
 		{
-			std::cout << i << " : " << GetSkeletonBoneName(i) << std::endl;
-
 			Vector3 pos;
 			Quaternion rot;
 			GetSkeletonBoneLocalBindTransform(i, pos, rot);
@@ -60,9 +57,11 @@ class CSimulation : public ISimulation
 			skmesh.AddBone(GetSkeletonBoneName(i), pos, rot, GetSkeletonBoneParentIndex(i));
 		}
 	}
-
+	
 	virtual void Update(float frameTime) override
 	{
+		skmesh.UpdateSkeleton();
+
 		// X axis
 		DrawLine(0, 0, 0, 100, 0, 0, 1, 0, 0);
 
@@ -72,40 +71,12 @@ class CSimulation : public ISimulation
 		// Z axis
 		DrawLine(0, 0, 0, 0, 0, 100, 0, 0, 1);
 
-		static float angle = 0.f;
-		skmesh.SetLocalBoneFromIndex(27, skmesh.GetLocalBoneFromIndex(27).pos, QuaternionFromAxisAngle({ 1, 0, 0 }, angle));
-		angle += 0.01f;
-		skmesh.SetLocalBoneFromIndex(6, skmesh.GetLocalBoneFromIndex(6).pos, QuaternionFromAxisAngle({ 1, 0, 0 }, -angle));
+		Maths::mat4x4* skelMatrixArray = skmesh.GetSkeletonMatrixArray();
 
-		for (unsigned int i = 0; i < skmesh.GetSkeletonSize(); ++i)
-		{
-			std::string boneName = skmesh.GetBoneNameFromIndex(i);
-			if (boneName.substr(0, 3) == "ik_")
-				continue;
+		float* skelMatrixFloat = skmesh.GetSkeletonMatrixFloat();
+		SetSkinningPose(skelMatrixFloat, 64);
 
-			int parentIndex = skmesh.GetLocalBoneFromIndex(i).parent;
-
-			if (parentIndex >= 0)
-			{
-				Bone bone = skmesh.GetGlobalBoneFromIndex(i);
-				Bone parent = skmesh.GetGlobalBoneFromIndex(parentIndex);
-				bone.pos = bone.pos + skeletonDrawOffset;
-				parent.pos = parent.pos + skeletonDrawOffset;
-
-				// draw bone
-				DrawLine(bone.pos, parent.pos, 0.f, 0.8f, 1.f);
-				// draw bone origin only
-				DrawLine(bone.pos + Maths::Vector3{ -0.5f, 0.f, 0.5f }, bone.pos - Maths::Vector3{ -0.5f, 0.f, 0.5f }, 1.f, 0.6f, 0.f);
-				DrawLine(bone.pos + Maths::Vector3{ 0.5f, 0.f, 0.5f }, bone.pos - Maths::Vector3{ 0.5f, 0.f, 0.5f }, 1.f, 0.6f, 0.f);
-				continue;
-			}
-
-			Bone bone = skmesh.GetGlobalBoneFromIndex(i);
-			bone.pos = bone.pos + skeletonDrawOffset;
-
-			DrawLine(bone.pos + Maths::Vector3{ -1.f, 0.f, 1.f }, bone.pos - Maths::Vector3{ -1.f, 0.f, 1.f }, 1.f, 0.f, 0.f);
-			DrawLine(bone.pos + Maths::Vector3{ 1.f, 0.f, 1.f }, bone.pos - Maths::Vector3{1.f, 0.f, 1.f}, 1.f, 0.f, 0.f);
-		}
+		skmesh.DrawSkeleton(skeletonDrawOffset);
 	}
 };
 
