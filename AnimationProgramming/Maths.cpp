@@ -885,6 +885,52 @@ mat4x4 mat4::frustum(float left, float right, float bottom, float top, float nea
             0.f,                             0.f,                             -(2 * far * near) / (far - near), 0.f,
     };
 }
+
+mat4x4 mat4::Invert(mat4x4& mat)
+{
+	mat4x4 result = {};
+
+	// Cache the matrix values (speed optimization)
+	float a00 = mat.e[0], a01 = mat.e[1], a02 = mat.e[2], a03 = mat.e[3];
+	float a10 = mat.e[4], a11 = mat.e[5], a12 = mat.e[6], a13 = mat.e[7];
+	float a20 = mat.e[8], a21 = mat.e[9], a22 = mat.e[10], a23 = mat.e[11];
+	float a30 = mat.e[12], a31 = mat.e[13], a32 = mat.e[14], a33 = mat.e[15];
+
+	float b00 = a00 * a11 - a01 * a10;
+	float b01 = a00 * a12 - a02 * a10;
+	float b02 = a00 * a13 - a03 * a10;
+	float b03 = a01 * a12 - a02 * a11;
+	float b04 = a01 * a13 - a03 * a11;
+	float b05 = a02 * a13 - a03 * a12;
+	float b06 = a20 * a31 - a21 * a30;
+	float b07 = a20 * a32 - a22 * a30;
+	float b08 = a20 * a33 - a23 * a30;
+	float b09 = a21 * a32 - a22 * a31;
+	float b10 = a21 * a33 - a23 * a31;
+	float b11 = a22 * a33 - a23 * a32;
+
+	// Calculate the invert determinant (inlined to avoid double-caching)
+	float invDet = 1.0f / (b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06);
+
+	result.e[0] = (a11 * b11 - a12 * b10 + a13 * b09) * invDet;
+	result.e[1] = (-a01 * b11 + a02 * b10 - a03 * b09) * invDet;
+	result.e[2] = (a31 * b05 - a32 * b04 + a33 * b03) * invDet;
+	result.e[3] = (-a21 * b05 + a22 * b04 - a23 * b03) * invDet;
+	result.e[4] = (-a10 * b11 + a12 * b08 - a13 * b07) * invDet;
+	result.e[5] = (a00 * b11 - a02 * b08 + a03 * b07) * invDet;
+	result.e[6] = (-a30 * b05 + a32 * b02 - a33 * b01) * invDet;
+	result.e[7] = (a20 * b05 - a22 * b02 + a23 * b01) * invDet;
+	result.e[8] = (a10 * b10 - a11 * b08 + a13 * b06) * invDet;
+	result.e[9] = (-a00 * b10 + a01 * b08 - a03 * b06) * invDet;
+	result.e[10] = (a30 * b04 - a31 * b02 + a33 * b00) * invDet;
+	result.e[11] = (-a20 * b04 + a21 * b02 - a23 * b00) * invDet;
+	result.e[12] = (-a10 * b09 + a11 * b07 - a12 * b06) * invDet;
+	result.e[13] = (a00 * b09 - a01 * b07 + a02 * b06) * invDet;
+	result.e[14] = (-a30 * b03 + a31 * b01 - a32 * b00) * invDet;
+	result.e[15] = (a20 * b03 - a21 * b01 + a22 * b00) * invDet;
+
+	return result;
+}
 #pragma endregion
 
 #pragma region QUATERNIONS

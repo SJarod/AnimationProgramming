@@ -178,9 +178,6 @@ namespace Maths
 	Quaternion QuaternionNormalize(Quaternion q);
 	Quaternion QuaternionFromAxisAngle(Vector3 axis, float angle);
 
-	// WORLD/LOCAL SPACE FUNCTIONS
-
-
 	// OTHER FUNCTIONS
 	float getFloatsMin4(float num1, float num2, float num3, float num4);
 	float getFloatsMin4(Vector4 vec);
@@ -195,6 +192,8 @@ namespace Maths
 		mat4x4 orthographic(float fovY, float aspect, float near, float far);
 		mat4x4 frustum(float left, float right, float bottom, float top, float near, float far);
 		
+		mat4x4 Invert(mat4x4& mat);
+
 		inline mat4x4 identity()
 		{
 			return {
@@ -207,12 +206,21 @@ namespace Maths
 
 		inline mat4x4 MakeRotationMatFromQuaternion(Quaternion q)
 		{
+#ifdef HORIZONTAL_MATRIX
 			return {
 				2.f * (q.w * q.w + q.x + q.x) - 1.f,	2.f * (q.x * q.y - q.w * q.z),			2.f * (q.x * q.z + q.w * q.y),		 0,
 				2.f * (q.x * q.y + q.w * q.z),			2.f * (q.w * q.w + q.y + q.y) - 1.f,	2.f * (q.y * q.z - q.w * q.x),		 0,
 				2.f * (q.x * q.z - q.w * q.y),			2.f * (q.y * q.z + q.w * q.x),			2.f * (q.w * q.w + q.z + q.z) - 1.f, 0,
+				0,										0,										0,									 1
+			};
+#else
+			return {
+				2.f * (q.w * q.w + q.x + q.x) - 1.f,	2.f * (q.x * q.y + q.w * q.z),			2.f * (q.x * q.z - q.w * q.y),		 0,
+				2.f * (q.x * q.y - q.w * q.z),			2.f * (q.w * q.w + q.y + q.y) - 1.f,	2.f * (q.y * q.z + q.w * q.x),		 0,
+				2.f * (q.x * q.z + q.w * q.y),			2.f * (q.y * q.z - q.w * q.x),			2.f * (q.w * q.w + q.z + q.z) - 1.f, 0,
 				0,										0,										0,									 0
 			};
+#endif
 		}
 
 		inline Maths::mat4x4 rotateX(float angleRadians)

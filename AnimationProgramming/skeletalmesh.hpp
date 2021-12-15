@@ -26,12 +26,18 @@ class SkeletalMesh
 {
 private:
 	std::vector<Bone> bones;
+	std::vector<Bone> restBones;
 
 public:
 	void AddBone(const Bone& bone);
 	void AddBone(const std::string& name, const Vector3& pos, const Quaternion& rot, const int parent = -1);
 	//returns the number of bones
 	unsigned int GetSkeletonSize() const;
+	void SetRestBones() 
+	{
+		for (Bone bone : bones)
+			restBones.push_back(bone);
+	}
 
 	Bone GetBoneFromIndex(const int index) const;
 
@@ -40,10 +46,10 @@ public:
 	void PrintSkeleton() {
 		printf("Bones: ");
 		for (int i = 0; i < bones.size(); i++)
-			printf("\t-%s, locRot.x = %f\n", bones[i].name.c_str(), bones[i].localRot.x);
+			printf("\t-%d: %s\n", i, bones[i].name.c_str());
 	}
 	void DrawSkeleton(const Maths::Vector3& skeletonDrawOffset);
-	void UpdateSkeleton();
+	void UpdateSkeleton(float deltaTime = 1/60.f);
 
 	Maths::mat4x4* GetSkeletonMatrixArray();
 	float* GetSkeletonMatrixFloat();

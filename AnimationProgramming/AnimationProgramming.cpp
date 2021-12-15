@@ -8,7 +8,7 @@
 #include "Simulation.h"
 #include "Maths.hpp"
 
-//#include <cstdlib>
+#include <thread>
 
 #include "skeletalmesh.hpp"
 
@@ -26,7 +26,7 @@ class CSimulation : public ISimulation
 
 	virtual void Init() override
 	{
-		system("pause");
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 
 		int spine01 =	GetSkeletonBoneIndex("spine_01");
 		int spineParent = GetSkeletonBoneParentIndex(spine01);
@@ -44,18 +44,22 @@ class CSimulation : public ISimulation
 		for (int i = 0; (size_t)i < boneCount; i++)
 		{
 			Bone bone;
+			bone.name = GetSkeletonBoneName(i);
+
+			if (bone.name.substr(0, 3) == "ik_")
+				continue;
+			
 			GetSkeletonBoneLocalBindTransform(i, bone.localPos, bone.localRot);
 			bone.parent = GetSkeletonBoneParentIndex(i);
-			bone.name = GetSkeletonBoneName(i);
 			skmesh.AddBone(bone);
 		}
-		
+		skmesh.SetRestBones();
 		skmesh.PrintSkeleton();
 	}
 	
 	virtual void Update(float frameTime) override
 	{
-		skmesh.UpdateSkeleton();
+		skmesh.UpdateSkeleton(frameTime);
 
 		// X axis
 		DrawLine(0, 0, 0, 100, 0, 0, 1, 0, 0);
@@ -66,10 +70,12 @@ class CSimulation : public ISimulation
 		// Z axis
 		DrawLine(0, 0, 0, 0, 0, 100, 0, 0, 1);
 
-		Maths::mat4x4* skelMatrixArray = skmesh.GetSkeletonMatrixArray();
-
 		float* skelMatrixFloat = skmesh.GetSkeletonMatrixFloat();
 		SetSkinningPose(skelMatrixFloat, 64);
+
+		//printf("---------------- FIRST MATRIX ----------------\n");
+		//for (int i = 0; i < 500; i++)
+		//	printf("float #%d = %f\n", i, skelMatrixFloat[i+1]);
 
 		skmesh.DrawSkeleton(skeletonDrawOffset);
 	}

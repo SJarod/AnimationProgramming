@@ -15,16 +15,16 @@ void Bone::DrawBoneNode(const float size, const Maths::Vector3 color)
 Maths::mat4x4 Bone::GetBoneMatrix(int parentIndex)
 {
 	Maths::mat4x4 matrix = Maths::mat4::identity();
-
+	/*
 	if (parentIndex >= 0)
 	{
 		Bone parent;
 		GetSkeletonBoneLocalBindTransform(parentIndex, parent.localPos, parent.localRot);
-		matrix = matrix * parent.GetBoneMatrix(GetSkeletonBoneParentIndex(parentIndex));
+		matrix = parent.GetBoneMatrix(GetSkeletonBoneParentIndex(parentIndex)) * matrix;
 	}
-
-	matrix = matrix * Maths::mat4::translate(localPos) * Maths::mat4::MakeRotationMatFromQuaternion(localRot);
-
+	*/
+	matrix =  Maths::mat4::MakeRotationMatFromQuaternion(globalRot) * Maths::mat4::translate(globalPos) * matrix;
+	
 	return matrix;
 }
 
@@ -35,7 +35,7 @@ Bone SkeletalMesh::GetParentRelativeBone(int parentIndex, Bone& bone)
 	GetSkeletonBoneLocalBindTransform(parentIndex, parent.localPos, parent.localRot);
 
 	int parentsParent = GetSkeletonBoneParentIndex(parentIndex);
-
+	 
 	if (parentsParent <= -1)
 	{
 		Bone result;
@@ -115,18 +115,16 @@ const char* SkeletalMesh::GetBoneNameFromIndex(const int index) const
 	return bones[index].name.c_str();
 }
 
-void SkeletalMesh::UpdateSkeleton()
+void SkeletalMesh::UpdateSkeleton(float deltaTime)
 {
 	static float movement = 0.f;
 
 	//bones[1].localPos.z = sinf(movement) * 100.f;
-	//bones[1].localPos.y = cosf(movement) * 10.f;
-	bones[17].localRot = Maths::QuaternionFromAxisAngle({ 1.0f, 0.f, 0.f }, sinf(movement / 4) * 69.f);
-	bones[26].localRot = Maths::QuaternionFromAxisAngle({0.0f, 1.f, 0.f}, cosf(movement / 24) * 42.f);
-	//bones[17].localRot.x = sinf(movement/4) * 69.f;
-	//bones[26].localRot.y = cosf(movement/234) * 42.f;
+	bones[1].localPos.y = cosf(movement) * 10.f;
+	bones[2].localRot = Maths::QuaternionFromAxisAngle({ 1.0f, 0.f, 0.f }, sinf(movement / 40) * 6.f);
+	//bones[56].localRot = Maths::QuaternionFromAxisAngle({0.0f, 1.f, 0.f}, cosf(movement / 24) * 4.f);
 
-	movement += 0.001f;
+	movement += deltaTime;
 }
 
 void SkeletalMesh::DrawSkeleton(const Maths::Vector3& skeletonDrawOffset)
@@ -160,9 +158,17 @@ void SkeletalMesh::DrawSkeleton(const Maths::Vector3& skeletonDrawOffset)
 Maths::mat4x4* SkeletalMesh::GetSkeletonMatrixArray()
 {
 	Maths::mat4x4 matrix[64];
-	for (int i = 0; i < bones.size(); i++)
+
+	for (int i = 0; i < 64 && i < 64; i++)
 	{
-		matrix[i] = bones[i].GetBoneMatrix(GetSkeletonBoneParentIndex(i));
+		if (i < bones.size())
+		{
+			matrix[i] = bones[i].GetBoneMatrix(bones[i].parent);
+
+			matrix[i] = matrix[i] * Maths::mat4::Invert(restBones[i].GetBoneMatrix(restBones[i].parent));
+		}
+		else
+			matrix[i] = Maths::mat4::identity();
 	}
 
 	return matrix;
@@ -173,11 +179,21 @@ float* SkeletalMesh::GetSkeletonMatrixFloat()
 	mat4x4* matrix = GetSkeletonMatrixArray();
 
 	int bonesSize = (int)bones.size();
+	//float* fMatrix = new float[64 * 16];
 	float fMatrix[64 * 16];
 
 	for (int i = 0; i < 64; i++)
+	{
 		for (int j = 0; j < 16; j++)
+		{
+			//fMatrix[i * 16 + j] = matrix[i].c[0].e[j];
+			//fMatrix[i * 16 + j] = matrix[i].c[1].e[j];
+			//fMatrix[i * 16 + j] = matrix[i].c[2].e[j];
+			//fMatrix[i * 16 + j] = matrix[i].c[3].e[j];
+			
 			fMatrix[i * 16 + j] = matrix[i].e[j];
+		}
+	}
 
 	return fMatrix;
 }

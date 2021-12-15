@@ -32,11 +32,17 @@ uniform SkinningMatrices
 ////////////////////////////////////////////////////////////////////////////////
 void main(void)
 {
-	// Calculate the position of the vertex against the world, view, and projection matrices.
-	vec4 pos = vec4(inputPosition, 1.0f);
+	mat4 localPosMat = boneWeights[0] * skin.mat[int(boneIndices[0])]
+	+ boneWeights[1] * skin.mat[int(boneIndices[1])] 
+	+ boneWeights[2] * skin.mat[int(boneIndices[2])] 
+	+ boneWeights[3] * skin.mat[int(boneIndices[3])]; 
+	
+	vec4 localPos = localPosMat * vec4(inputPosition, 1.f);
 
-	gl_Position = sm.projectionMatrix * (modelViewMatrix * vec4(pos.xyz, 1.0f));
-	outNormal = mat3(modelViewMatrix) * normal;
+	vec3 localNormal = mat3(skin.mat[int(boneIndices[0])]) * normal;
+	gl_Position = sm.projectionMatrix * (modelViewMatrix * vec4(localPos.xyz, 1.f));
+
+	outNormal = mat3(modelViewMatrix) * localNormal;
 
 	outNormal = normalize(outNormal);
 }
