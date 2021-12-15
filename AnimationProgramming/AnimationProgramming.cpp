@@ -12,23 +12,16 @@
 
 #include "skeletalmesh.hpp"
 
-#pragma region TO MOVE TO BONE CLASS
-
-
-#pragma endregion
-
 class CSimulation : public ISimulation
 {
 	SkeletalMesh   skmesh;
 	Maths::Vector3 skeletonDrawOffset = { 0.f, -20.f, 0.f };
-	//std::vector<Bone> bones;
-	
 
 	virtual void Init() override
 	{
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 
-		int spine01 =	GetSkeletonBoneIndex("spine_01");
+		int spine01 = GetSkeletonBoneIndex("spine_01");
 		int spineParent = GetSkeletonBoneParentIndex(spine01);
 		const char* spineParentName = GetSkeletonBoneName(spineParent);
 		size_t boneCount = GetSkeletonBoneCount();

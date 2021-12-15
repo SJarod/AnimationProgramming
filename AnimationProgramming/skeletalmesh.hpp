@@ -9,11 +9,8 @@ class Bone
 public:
 	std::string	name = "";
 
-	Vector3		localPos = {};
-	Quaternion	localRot = {};
-
-	Vector3		globalPos = {};
-	Quaternion  globalRot = {};
+	Vector3		pos = {};
+	Quaternion	rot = {};
 
 	int			parent = -1;
 
@@ -39,9 +36,13 @@ public:
 			restBones.push_back(bone);
 	}
 
-	Bone GetBoneFromIndex(const int index) const;
+	void			SetLocalBoneFromIndex(const int index, const Vector3& pos, const Quaternion& rot);
+	//returns a bone with local transform
+	Bone			GetLocalBoneFromIndex(const int index) const;
+	//returns a bone with global transform
+	Bone			GetGlobalBoneFromIndex(const int index) const;
 
-	const char* GetBoneNameFromIndex(const int index) const;
+	const char*		GetBoneNameFromIndex(const int index) const;
 
 	void PrintSkeleton() {
 		printf("Bones: ");
@@ -51,8 +52,6 @@ public:
 	void DrawSkeleton(const Maths::Vector3& skeletonDrawOffset);
 	void UpdateSkeleton(float deltaTime = 1/60.f);
 
-	Maths::mat4x4* GetSkeletonMatrixArray();
-	float* GetSkeletonMatrixFloat();
-	Bone GetParentRelativeBone(int parentIndex, Bone& bone);
-	Bone GetGlobalBoneFromIndex(const int index) const;
+	Maths::mat4x4*	GetSkeletonMatrixArray();
+	float*			GetSkeletonMatrixFloat();
 };
