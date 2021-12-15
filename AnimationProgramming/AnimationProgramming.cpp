@@ -47,15 +47,6 @@ class CSimulation : public ISimulation
 		}
 		
 		skmesh.PrintSkeleton();
-
-		for (int i = 0; i < (int)GetSkeletonBoneCount(); ++i)
-		{
-			Vector3 pos;
-			Quaternion rot;
-			GetSkeletonBoneLocalBindTransform(i, pos, rot);
-
-			skmesh.AddBone(GetSkeletonBoneName(i), pos, rot, GetSkeletonBoneParentIndex(i));
-		}
 	}
 	
 	virtual void Update(float frameTime) override

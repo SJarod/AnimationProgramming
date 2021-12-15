@@ -82,9 +82,31 @@ const char* SkeletalMesh::GetBoneNameFromIndex(const int index) const
 
 void SkeletalMesh::UpdateSkeleton()
 {
-	static float movement = 0.f;
+	static int currentKeyFrame = 0;
+	static float timer = 0.f;
+	size_t keyCount = GetAnimKeyCount("ThirdPersonWalk.anim");
 
-	movement += 0.001f;
+	for (unsigned int i = 0; i < GetSkeletonSize(); ++i)
+	{
+		Vector3 keyFramePos;
+		Quaternion keyFrameQ;
+		GetAnimLocalBoneTransform("ThirdPersonWalk.anim", i, currentKeyFrame, keyFramePos, keyFrameQ);
+
+		Vector3 tPosePos;
+		Quaternion tPoseQ;
+		GetSkeletonBoneLocalBindTransform(i, tPosePos, tPoseQ);
+
+		SetLocalBoneFromIndex(i, tPosePos + keyFramePos, QuaternionMultiply(tPoseQ, keyFrameQ));
+	}
+
+	timer += 0.1f;
+	if (timer >= 1.f)
+	{
+		++currentKeyFrame;
+		timer = 0.f;
+	}
+	if (currentKeyFrame >= (int)keyCount)
+		currentKeyFrame = 0;
 }
 
 void SkeletalMesh::DrawSkeleton(const Maths::Vector3& skeletonDrawOffset)

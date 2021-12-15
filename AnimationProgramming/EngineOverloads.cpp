@@ -1,4 +1,3 @@
-
 #include "Engine.h"
 #include "EngineOverloads.h"
 
@@ -15,22 +14,4 @@ void GetAnimLocalBoneTransform(const char* animName, int boneIndex, int keyFrame
 void DrawLine(Maths::Vector3 pos1, Maths::Vector3 pos2, float r, float g, float b)
 {
 	DrawLine(pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z, r, g, b);
-}
-
-Maths::Vector3 GetAnimGlobalPos(const char* animName, int boneIndex, int keyFrameIndex)
-{
-	if (boneIndex == 0)
-	{
-		Maths::Vector3 pos;
-		Quaternion q;
-		GetAnimLocalBoneTransform(animName, boneIndex, keyFrameIndex, pos.x, pos.y, pos.z, q.w, q.x, q.y, q.z);
-
-		return pos;
-	}
-
-	Maths::Vector3 pos;
-	Quaternion q;
-	GetAnimLocalBoneTransform(animName, boneIndex, keyFrameIndex, pos.x, pos.y, pos.z, q.w, q.x, q.y, q.z);
-
-	return pos + GetAnimGlobalPos(animName, GetSkeletonBoneParentIndex(boneIndex), keyFrameIndex);
 }
