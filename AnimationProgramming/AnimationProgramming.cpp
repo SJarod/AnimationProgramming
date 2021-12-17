@@ -12,8 +12,10 @@
 
 class CSimulation : public ISimulation
 {
-	SkeletalMesh   skmesh;
-	Maths::Vector3 skeletonDrawOffset = { -200.f, 0.f, 0.f };
+	SkeletalMesh	skmesh;
+	Maths::Vector3	skeletonDrawOffset = { -200.f, 0.f, 0.f };
+	Animation		walkAnim;
+	Animation		runAnim;
 
 	virtual void Init() override
 	{
@@ -49,11 +51,15 @@ class CSimulation : public ISimulation
 		}
 		
 		skmesh.PrintSkeleton();
+
+		walkAnim.LoadAnimation("ThirdPersonWalk.anim", skmesh.GetSkeletonSize());
+		runAnim.LoadAnimation("ThirdPersonRun.anim", skmesh.GetSkeletonSize());
 	}
 	
 	virtual void Update(float frameTime) override
 	{
 		skmesh.UpdateSkeleton(frameTime);
+		skmesh.PlayAnimation(walkAnim, frameTime * 10.f);
 
 		// X axis
 		DrawLine(0, 0, 0, 100, 0, 0, 1, 0, 0);

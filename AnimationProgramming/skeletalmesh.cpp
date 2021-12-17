@@ -49,6 +49,33 @@ void SkeletalMesh::AddBone(const std::string& name, const Vector3& pos, const Qu
 	bones.push_back(b);
 }
 
+void SkeletalMesh::PlayAnimation(const Animation& anim, const float& playSpeed)
+{
+	static float timer = 0.f;
+	static int currentKeyFrame = 0;
+
+	for (unsigned int i = 0; i < GetSkeletonSize(); ++i)
+	{
+		KeyFrameBone kfb = anim.GetBoneFromKeyFrame(currentKeyFrame, i);
+		KeyFrameBone nextKfb = anim.GetBoneFromKeyFrame(kfb.nextKF, i);
+
+		Vector3 newPos = lerp(bones[i].bindPos + kfb.pos, bones[i].bindPos + nextKfb.pos, timer);
+		Quaternion newRot = slerp(QuaternionMultiply(bones[i].bindRot, kfb.rot),
+								  QuaternionMultiply(bones[i].bindRot, nextKfb.rot), timer);
+
+		SetLocalBoneFromIndex(i, newPos, newRot);
+	}
+
+	timer += playSpeed;
+	if (timer >= 1.f)
+	{
+		timer = 0.f;
+		++currentKeyFrame;
+		if (currentKeyFrame >= anim.GetAnimationSize())
+			currentKeyFrame = 0;
+	}
+}
+
 unsigned int SkeletalMesh::GetSkeletonSize() const
 {
 	return (int)bones.size();
@@ -58,12 +85,6 @@ void SkeletalMesh::SetLocalBoneFromIndex(const int index, const Vector3& pos, co
 {
 	bones[index].pos = pos;
 	bones[index].rot = rot;
-}
-
-void SkeletalMesh::SetNextKeyFrameBone(const int index, const Vector3& nextKFPos, const Quaternion& nextKFRot)
-{
-	bones[index].nextKeyFramePos = nextKFPos;
-	bones[index].nextKeyFrameRot = nextKFRot;
 }
 
 Bone SkeletalMesh::GetLocalBoneFromIndex(const int index) const
@@ -93,29 +114,6 @@ const char* SkeletalMesh::GetBoneNameFromIndex(const int index) const
 
 void SkeletalMesh::UpdateSkeleton(const float& deltaTime)
 {
-	static int currentKeyFrame = 0;
-	static float timer = 1.f;
-	size_t keyCount = GetAnimKeyCount("ThirdPersonRun.anim");
-
-	timer += deltaTime * 10.f;
-	if (timer >= 1.f)
-	{
-		for (unsigned int i = 0; i < GetSkeletonSize(); ++i)
-		{
-			GetAnimLocalBoneTransform("ThirdPersonRun.anim", i, currentKeyFrame, bones[i].nextKeyFramePos, bones[i].nextKeyFrameRot);
-		}
-		++currentKeyFrame;
-		timer = 0.f;
-	}
-
-	for (unsigned int i = 0; i < GetSkeletonSize(); ++i)
-	{
-		Bone b = GetLocalBoneFromIndex(i);
-		SetLocalBoneFromIndex(i, b.pos, slerp(b.rot, QuaternionMultiply(b.bindRot, b.nextKeyFrameRot), deltaTime * 10.f));
-	}
-
-	if (currentKeyFrame >= (int)keyCount)
-		currentKeyFrame = 0;
 }
 
 void SkeletalMesh::DrawSkeleton(const Maths::Vector3& skeletonDrawOffset)

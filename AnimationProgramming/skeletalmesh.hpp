@@ -4,20 +4,19 @@
 
 #include <vector>
 
+#include "animation.hpp"
+
 class Bone
 {
 public:
 	std::string	name = "";
 
-	//bind pos, t-pose
+	//bind pos, t-pose pos
 	Vector3		bindPos = {};
 	Quaternion	bindRot = {};
 	//current pos
 	Vector3		pos = {};
 	Quaternion	rot = {};
-	//next key frame pos
-	Vector3		nextKeyFramePos = {};
-	Quaternion	nextKeyFrameRot = {};
 
 	int			parent = -1;
 
@@ -29,16 +28,18 @@ public:
 class SkeletalMesh
 {
 private:
-	std::vector<Bone> bones;
+	std::vector<Bone>	bones;
 
 public:
 	void AddBone(const Bone& bone);
 	void AddBone(const std::string& name, const Vector3& pos, const Quaternion& rot, const int parent = -1);
+
+	void PlayAnimation(const Animation& anim, const float& playSpeed);
+
 	//returns the number of bones
 	unsigned int	GetSkeletonSize() const;
 
 	void			SetLocalBoneFromIndex(const int index, const Vector3& pos, const Quaternion& rot);
-	void			SetNextKeyFrameBone(const int index, const Vector3& nextKFPos, const Quaternion& nextKFRot);
 	//returns a bone with local transform
 	Bone			GetLocalBoneFromIndex(const int index) const;
 	//returns a bone with global transform

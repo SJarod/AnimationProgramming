@@ -155,6 +155,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="animation.hpp" />
     <ClInclude Include="Constants.hpp" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="EngineOverloads.h" />
@@ -165,6 +166,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="animation.cpp" />
     <ClCompile Include="AnimationProgramming.cpp" />
     <ClCompile Include="EngineOverloads.cpp" />
     <ClCompile Include="Maths.cpp" />
