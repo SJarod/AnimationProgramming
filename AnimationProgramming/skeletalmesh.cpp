@@ -21,11 +21,43 @@ void SkeletalMesh::AddBone(const std::string& name, const Vector3& pos, const Qu
 {
 	Bone b;
 	b.name = name;
+
+	b.bindPos = pos;
 	b.pos = pos;
+
+	b.bindRot = rot;
 	b.rot = rot;
+
 	b.parent = parent;
 
 	bones.push_back(b);
+}
+
+void SkeletalMesh::PlayAnimation(const Animation& anim, const float& playSpeed)
+{
+	static float timer = 0.f;
+	static int currentKeyFrame = 0;
+
+	for (unsigned int i = 0; i < GetSkeletonSize(); ++i)
+	{
+		KeyFrameBone kfb = anim.GetBoneFromKeyFrame(currentKeyFrame, i);
+		KeyFrameBone nextKfb = anim.GetBoneFromKeyFrame(kfb.nextKF, i);
+
+		Vector3 newPos = lerp(bones[i].bindPos + kfb.pos, bones[i].bindPos + nextKfb.pos, timer);
+		Quaternion newRot = slerp(QuaternionMultiply(bones[i].bindRot, kfb.rot),
+								  QuaternionMultiply(bones[i].bindRot, nextKfb.rot), timer);
+
+		SetLocalBoneFromIndex(i, newPos, newRot);
+	}
+
+	timer += playSpeed;
+	if (timer >= 1.f)
+	{
+		timer = 0.f;
+		++currentKeyFrame;
+		if (currentKeyFrame >= anim.GetAnimationSize())
+			currentKeyFrame = 0;
+	}
 }
 
 unsigned int SkeletalMesh::GetSkeletonSize() const
@@ -64,44 +96,8 @@ const char* SkeletalMesh::GetBoneNameFromIndex(const int index) const
 	return bones[index].name.c_str();
 }
 
-void SkeletalMesh::UpdateSkeleton(float deltaTime)
+void SkeletalMesh::UpdateSkeleton(const float& deltaTime)
 {
-	static float movement = 0.f;
-	/*
-	static int currentKeyFrame = 0;
-	static float timer = 0.f;
-	size_t keyCount = GetAnimKeyCount("ThirdPersonWalk.anim");
-
-	for (unsigned int i = 0; i < GetSkeletonSize(); ++i)
-	{
-		Vector3 keyFramePos;
-		Quaternion keyFrameQ;
-		GetAnimLocalBoneTransform("ThirdPersonWalk.anim", i, currentKeyFrame, keyFramePos, keyFrameQ);
-
-		Vector3 tPosePos;
-		Quaternion tPoseQ;
-		GetSkeletonBoneLocalBindTransform(i, tPosePos, tPoseQ);
-
-		SetLocalBoneFromIndex(i, tPosePos + keyFramePos, QuaternionMultiply(tPoseQ, keyFrameQ));
-	}
-
-	timer += 0.1f;
-	if (timer >= 1.f)
-	{
-		++currentKeyFrame;
-		timer = 0.f;
-	}
-	if (currentKeyFrame >= (int)keyCount)
-		currentKeyFrame = 0;
-	*/
-	
-	//bones[1].localPos.z = sinf(movement) * 100.f;
-	//bones[1].pos.y = cosf(movement) * 10.f;
-	bones[2].rot = Maths::QuaternionFromAxisAngle({ 1.0f, 0.f, 0.f }, sinf(movement) / 4.f);
-	bones[49].rot = Maths::QuaternionFromAxisAngle({ 0.0f, 1.f, 0.f }, cosf(movement / 2) / 8.f);
-	bones[53].rot = Maths::QuaternionFromAxisAngle({0.0f, 0.f, 1.f}, cosf(movement) / 6.f);
-
-	movement += deltaTime;
 }
 
 void SkeletalMesh::DrawSkeleton(const Maths::Vector3& skeletonDrawOffset)

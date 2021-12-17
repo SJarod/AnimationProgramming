@@ -4,11 +4,17 @@
 
 #include <vector>
 
+#include "animation.hpp"
+
 class Bone
 {
 public:
 	std::string	name = "";
 
+	//bind pos, t-pose pos
+	Vector3		bindPos = {};
+	Quaternion	bindRot = {};
+	//current pos
 	Vector3		pos = {};
 	Quaternion	rot = {};
 
@@ -27,6 +33,9 @@ private:
 public:
 	void AddBone(const Bone& bone);
 	void AddBone(const std::string& name, const Vector3& pos, const Quaternion& rot, const int parent = -1);
+
+	void PlayAnimation(const Animation& anim, const float& playSpeed);
+
 	//returns the number of bones
 	unsigned int GetSkeletonSize() const;
 	void SetRestBones() 
