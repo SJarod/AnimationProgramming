@@ -54,13 +54,13 @@ public:
 
 	void PrintSkeleton() {
 		printf("Bones: ");
-		for (int i = 0; i < bones.size(); i++)
+		for (unsigned int i = 0; i < GetSkeletonSize(); i++)
 			printf("\t-%d: %s\n", i, bones[i].name.c_str());
 	}
 	void DrawSkeleton(const Maths::Vector3& skeletonDrawOffset);
 	void UpdateSkeleton(float deltaTime = 1/60.f);
 
 	Maths::mat4x4 GetBoneMatrix(int index, bool getInRestSkeleton = false);
-	Maths::mat4x4*	GetSkeletonMatrixArray();
-	float*			GetSkeletonMatrixFloat();
+	Maths::mat4x4*	GetSkeletonMatrixArray(Maths::mat4x4* matrix);
+	float*			GetSkeletonMatrixFloat(float* fMatrix);
 };

@@ -62,7 +62,7 @@ void SkeletalMesh::PlayAnimation(const Animation& anim, const float& playSpeed)
 
 unsigned int SkeletalMesh::GetSkeletonSize() const
 {
-	return (int)bones.size();
+	return (unsigned int)bones.size();
 }
 
 void SkeletalMesh::SetLocalBoneFromIndex(const int index, const Vector3& pos, const Quaternion& rot)
@@ -147,13 +147,11 @@ Maths::mat4x4 SkeletalMesh::GetBoneMatrix(int index, bool getInRestSkeleton)
 	return matrix;
 }
 
-Maths::mat4x4* SkeletalMesh::GetSkeletonMatrixArray()
+Maths::mat4x4* SkeletalMesh::GetSkeletonMatrixArray(Maths::mat4x4* matrix)
 {
-	Maths::mat4x4 matrix[64];
-
-	for (int i = 0; i < 64; i++)
+	for (unsigned int i = 0; i < 64; i++)
 	{
-		if (i < bones.size())
+		if (i < GetSkeletonSize())
 		{
 			matrix[i] = GetBoneMatrix(i);
 
@@ -166,12 +164,12 @@ Maths::mat4x4* SkeletalMesh::GetSkeletonMatrixArray()
 	return matrix;
 }
 
-float* SkeletalMesh::GetSkeletonMatrixFloat()
+float* SkeletalMesh::GetSkeletonMatrixFloat(float* fMatrix)
 {
-	mat4x4* matrix = GetSkeletonMatrixArray();
+	mat4x4 matrix[64];
+	GetSkeletonMatrixArray(matrix);
 
 	unsigned int bonesSize = GetSkeletonSize();
-	float fMatrix[64 * 16];
 
 	for (int i = 0; i < 64; i++)
 	{
