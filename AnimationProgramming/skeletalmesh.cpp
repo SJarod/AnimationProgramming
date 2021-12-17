@@ -96,7 +96,7 @@ const char* SkeletalMesh::GetBoneNameFromIndex(const int index) const
 	return bones[index].name.c_str();
 }
 
-void SkeletalMesh::UpdateSkeleton(const float& deltaTime)
+void SkeletalMesh::UpdateSkeleton(float deltaTime)
 {
 }
 
