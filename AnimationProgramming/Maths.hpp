@@ -208,10 +208,10 @@ namespace Maths
 		{
 #ifdef HORIZONTAL_MATRIX
 			return {
-			1.f - 2.f * (q.y * q.y - q.z + q.z),	2.f * (q.x * q.y + q.w * q.z),			2.f * (q.x * q.z - q.w * q.y),		 0,
-			2.f * (q.x * q.y - q.w * q.z),			1.f - 2.f * (q.x * q.x - q.z + q.z),	2.f * (q.y * q.z + q.w * q.x),		 0,
-			2.f * (q.x * q.z + q.w * q.y),			2.f * (q.y * q.z - q.w * q.x),			1.f - 2.f * (q.x * q.x - q.y + q.y), 0,
-			0,										0,										0,									 1
+				1.f - 2.f * (q.y * q.y - q.z + q.z),	2.f * (q.x * q.y + q.w * q.z),			2.f * (q.x * q.z - q.w * q.y),		 0,
+				2.f * (q.x * q.y - q.w * q.z),			1.f - 2.f * (q.x * q.x - q.z + q.z),	2.f * (q.y * q.z + q.w * q.x),		 0,
+				2.f * (q.x * q.z + q.w * q.y),			2.f * (q.y * q.z - q.w * q.x),			1.f - 2.f * (q.x * q.x - q.y + q.y), 0,
+				0,										0,										0,									 1
 			};
 			//return {
 			//	2.f * (q.w * q.w + q.x + q.x) - 1.f,	2.f * (q.x * q.y - q.w * q.z),			2.f * (q.x * q.z + q.w * q.y),		 0,

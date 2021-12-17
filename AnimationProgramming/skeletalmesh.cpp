@@ -96,9 +96,10 @@ void SkeletalMesh::UpdateSkeleton(float deltaTime)
 	*/
 	
 	//bones[1].localPos.z = sinf(movement) * 100.f;
-	bones[1].pos.y = cosf(movement) * 10.f;
+	//bones[1].pos.y = cosf(movement) * 10.f;
 	bones[2].rot = Maths::QuaternionFromAxisAngle({ 1.0f, 0.f, 0.f }, sinf(movement) / 4.f);
-	//bones[26].rot = Maths::QuaternionFromAxisAngle({0.0f, 1.f, 0.f}, cosf(movement / 24) * 4.f);
+	bones[49].rot = Maths::QuaternionFromAxisAngle({ 0.0f, 1.f, 0.f }, cosf(movement / 2) / 8.f);
+	bones[53].rot = Maths::QuaternionFromAxisAngle({0.0f, 0.f, 1.f}, cosf(movement) / 6.f);
 
 	movement += deltaTime;
 }
