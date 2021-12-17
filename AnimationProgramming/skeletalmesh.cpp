@@ -12,22 +12,6 @@ void Bone::DrawBoneNode(const float size, const Maths::Vector3 color)
 	DrawLine(pos + Maths::Vector3{ 0.f, size, size }, pos - Maths::Vector3{ 0.f, size, size }, color.r, color.g, color.b);
 }
 
-Maths::mat4x4 Bone::GetBoneMatrix(int parentIndex)
-{
-	Maths::mat4x4 matrix = Maths::mat4::identity();
-	/*
-	if (parentIndex >= 0)
-	{
-		Bone parent;
-		GetSkeletonBoneLocalBindTransform(parentIndex, parent.pos, parent.rot);
-		matrix = matrix * parent.GetBoneMatrix(GetSkeletonBoneParentIndex(parentIndex));
-	}
-	*/
-	matrix = matrix * Maths::mat4::translate(pos) * Maths::mat4::MakeRotationMatFromQuaternion(rot);
-
-	return matrix;
-}
-
 void SkeletalMesh::AddBone(const Bone& bone)
 {
 	bones.push_back(bone);
@@ -113,8 +97,8 @@ void SkeletalMesh::UpdateSkeleton(float deltaTime)
 	
 	//bones[1].localPos.z = sinf(movement) * 100.f;
 	bones[1].pos.y = cosf(movement) * 10.f;
-	bones[2].rot = Maths::QuaternionFromAxisAngle({ 1.0f, 0.f, 0.f }, 6.f);
-	//bones[56].localRot = Maths::QuaternionFromAxisAngle({0.0f, 1.f, 0.f}, cosf(movement / 24) * 4.f);
+	bones[2].rot = Maths::QuaternionFromAxisAngle({ 1.0f, 0.f, 0.f }, sinf(movement) / 4.f);
+	//bones[26].rot = Maths::QuaternionFromAxisAngle({0.0f, 1.f, 0.f}, cosf(movement / 24) * 4.f);
 
 	movement += deltaTime;
 }
@@ -147,17 +131,36 @@ void SkeletalMesh::DrawSkeleton(const Maths::Vector3& skeletonDrawOffset)
 	}
 }
 
+Maths::mat4x4 SkeletalMesh::GetBoneMatrix(int index, bool getInRestSkeleton)
+{
+	Maths::mat4x4 matrix = Maths::mat4::identity();
+
+	Bone bone;
+
+	if (getInRestSkeleton)
+		bone = restBones[index];
+	else
+		bone = bones[index];
+
+	if (bone.parent > 0)
+		matrix = matrix * GetBoneMatrix(bone.parent, getInRestSkeleton);
+
+	matrix = matrix * Maths::mat4::translate(bone.pos) * Maths::mat4::MakeRotationMatFromQuaternion(bone.rot);
+
+	return matrix;
+}
+
 Maths::mat4x4* SkeletalMesh::GetSkeletonMatrixArray()
 {
 	Maths::mat4x4 matrix[64];
 
-	for (int i = 0; i < 64 && i < 64; i++)
+	for (int i = 0; i < 64; i++)
 	{
 		if (i < bones.size())
 		{
-			matrix[i] = bones[i].GetBoneMatrix(i);
+			matrix[i] = GetBoneMatrix(i);
 
-			matrix[i] = matrix[i] * Maths::mat4::Invert(restBones[i].GetBoneMatrix(i));
+			matrix[i] = matrix[i] * Maths::mat4::Invert(GetBoneMatrix(i, true));
 		}
 		else
 			matrix[i] = Maths::mat4::identity();

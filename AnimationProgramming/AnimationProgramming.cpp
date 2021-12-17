@@ -64,7 +64,7 @@ class CSimulation : public ISimulation
 		DrawLine(0, 0, 0, 0, 0, 100, 0, 0, 1);
 
 		float* skelMatrixFloat = skmesh.GetSkeletonMatrixFloat();
-		SetSkinningPose(skelMatrixFloat, 64);
+		SetSkinningPose(skelMatrixFloat, skmesh.GetSkeletonSize());
 
 		//printf("---------------- FIRST MATRIX ----------------\n");
 		//for (int i = 0; i < 500; i++)
