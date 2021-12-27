@@ -1118,7 +1118,7 @@ Vector3 Maths::lerp(const Vector3& from, const Vector3& to, const float& t)
 
 Quaternion Maths::slerp(const Quaternion& from, Quaternion& to, const float& t)
 {
-#if 0
+#if 0	//from Wikipedia
 	float cosOmega = from.w * to.w + from.x * to.x + from.y * to.y + from.z * to.z;
 	float omega = acosf(fabsf(cosOmega));
 
@@ -1133,17 +1133,7 @@ Quaternion Maths::slerp(const Quaternion& from, Quaternion& to, const float& t)
 		mag = 1.f;
 
 	return lerped;
-#elif 0
-	Quaternion lerped;
-	lerped.w = lerp(from.w, to.w, t);
-	lerped.x = lerp(from.x, to.x, t);
-	lerped.y = lerp(from.y, to.y, t);
-	lerped.z = lerp(from.z, to.z, t);
-
-	float mag = sqrtf(lerped.w * lerped.w + lerped.x * lerped.x + lerped.y * lerped.y + lerped.z * lerped.z);
-
-	return Quaternion{ lerped.x / mag, lerped.y / mag, lerped.z / mag, lerped.w / mag };
-#elif 1
+#elif 1	//from RayLib
 	Quaternion result = { 0 };
 
 	float cosHalfTheta = from.x * to.x + from.y * to.y + from.z * to.z + from.w * to.w;
@@ -1154,7 +1144,8 @@ Quaternion Maths::slerp(const Quaternion& from, Quaternion& to, const float& t)
 		cosHalfTheta = -cosHalfTheta;
 	}
 
-	if (fabs(cosHalfTheta) >= 1.0f) result = from;
+	if (fabs(cosHalfTheta) >= 1.0f)
+		result = from;
 	else if (cosHalfTheta > 0.95f)
 	{
 		Quaternion lerped;
@@ -1190,7 +1181,6 @@ Quaternion Maths::slerp(const Quaternion& from, Quaternion& to, const float& t)
 			result.w = (from.w * ratioA + to.w * ratioB);
 		}
 	}
-
 	return result;
 #endif
 }

@@ -38,19 +38,17 @@ class CSimulation : public ISimulation
 	
 		for (int i = 0; (size_t)i < boneCount; i++)
 		{
-			Bone bone;
-			bone.name = GetSkeletonBoneName(i);
+			std::string name = GetSkeletonBoneName(i);
 
-			if (bone.name.substr(0, 3) == "ik_")
+			if (name.substr(0, 3) == "ik_")
 				continue;
 			
-			GetSkeletonBoneLocalBindTransform(i, bone.pos, bone.rot);
-			bone.bindPos = bone.pos;
-			bone.bindRot = bone.rot;
-			bone.parent = GetSkeletonBoneParentIndex(i);
-			skmesh.AddBone(bone);
+			Vector3 pos;
+			Quaternion rot;
+			GetSkeletonBoneLocalBindTransform(i, pos, rot);
+
+			skmesh.AddBone(name, pos, rot, GetSkeletonBoneParentIndex(i));
 		}
-		skmesh.SetRestBones();
 		skmesh.PrintSkeleton();
 
 		walkAnim.LoadAnimation("ThirdPersonWalk.anim", skmesh.GetSkeletonSize());
@@ -70,8 +68,8 @@ class CSimulation : public ISimulation
 
 		// Z axis
 		DrawLine(0, 0, 0, 0, 0, 100, 0, 0, 1);
-		float skelMatrixFloat[64 * 16];
 
+		float skelMatrixFloat[64 * 16];
 		skmesh.GetSkeletonMatrixFloat(skelMatrixFloat);
 		SetSkinningPose(skelMatrixFloat, skmesh.GetSkeletonSize());
 
