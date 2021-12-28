@@ -52,7 +52,9 @@ public:
 	void DrawSkeleton(const Maths::Vector3& skeletonDrawOffset);
 	void UpdateSkeleton(float deltaTime = 1/60.f);
 
-	Maths::mat4x4	GetBoneMatrix(int index, bool getInRestSkeleton = false);
+	Maths::mat4x4	GetGlobalBoneMatrix(int index);
+	Maths::mat4x4	GetGlobalBindBoneMatrix(int index);
+
 	void 			GetSkeletonMatrixArray(Maths::mat4x4* matrix);
 	void			GetSkeletonMatrixFloat(float* fMatrix);
 };

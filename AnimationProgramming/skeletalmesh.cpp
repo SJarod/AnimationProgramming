@@ -125,18 +125,16 @@ void SkeletalMesh::DrawSkeleton(const Maths::Vector3& skeletonDrawOffset)
 	}
 }
 
-Maths::mat4x4 SkeletalMesh::GetBoneMatrix(int index, bool getInRestSkeleton)
+Maths::mat4x4 SkeletalMesh::GetGlobalBoneMatrix(int index)
 {
-	Maths::mat4x4 matrix;
-
 	Bone bone = GetGlobalBoneFromIndex(index);
+	return Maths::mat4::translate(bone.pos) * Maths::mat4::MakeRotationMatFromQuaternion(bone.rot);
+}
 
-	if (getInRestSkeleton)
-		matrix = Maths::mat4::translate(bone.bindPos) * Maths::mat4::MakeRotationMatFromQuaternion(bone.bindRot);
-	else
-		matrix = Maths::mat4::translate(bone.pos) * Maths::mat4::MakeRotationMatFromQuaternion(bone.rot);
-
-	return matrix;
+Maths::mat4x4 SkeletalMesh::GetGlobalBindBoneMatrix(int index)
+{
+	Bone bone = GetGlobalBoneFromIndex(index);
+	return Maths::mat4::translate(bone.bindPos) * Maths::mat4::MakeRotationMatFromQuaternion(bone.bindRot);
 }
 
 void SkeletalMesh::GetSkeletonMatrixArray(Maths::mat4x4* matrix)
@@ -145,9 +143,9 @@ void SkeletalMesh::GetSkeletonMatrixArray(Maths::mat4x4* matrix)
 	{
 		if (i < GetSkeletonSize())
 		{
-			matrix[i] = GetBoneMatrix(i);
+			matrix[i] = GetGlobalBoneMatrix(i);
 
-			matrix[i] = matrix[i] * Maths::mat4::Invert(GetBoneMatrix(i, true));
+			matrix[i] = matrix[i] * Maths::mat4::Invert(GetGlobalBindBoneMatrix(i));
 		}
 		else
 			matrix[i] = Maths::mat4::identity();
@@ -165,11 +163,6 @@ void SkeletalMesh::GetSkeletonMatrixFloat(float* fMatrix)
 	{
 		for (int j = 0; j < 16; j++)
 		{
-			//fMatrix[i * 16 + j] = matrix[i].c[0].e[j];
-			//fMatrix[i * 16 + j] = matrix[i].c[1].e[j];
-			//fMatrix[i * 16 + j] = matrix[i].c[2].e[j];
-			//fMatrix[i * 16 + j] = matrix[i].c[3].e[j];
-			
 			fMatrix[i * 16 + j] = matrix[i].e[j];
 		}
 	}
