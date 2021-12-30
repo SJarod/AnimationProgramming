@@ -28,10 +28,12 @@ class SkeletalMesh
 private:
 	std::vector<Bone> bones;
 
+	AnimationPlayer animPlayer;
+
 public:
 	void AddBone(const std::string& name, const Vector3& pos, const Quaternion& rot, const int parent = -1);
 
-	void PlayAnimation(const Animation& anim, const float& playSpeed);
+	void CreateAnimationPlayer(const Animation& anim1, const Animation& anim2);
 
 	//returns the number of bones
 	unsigned int	GetSkeletonSize() const;

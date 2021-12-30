@@ -182,8 +182,12 @@ namespace Maths
 	float getFloatsMin4(float num1, float num2, float num3, float num4);
 	float getFloatsMin4(Vector4 vec);
 	float getFloatsMax4(float num1, float num2, float num3, float num4);
+
 	float clamp(float toClamp, float min, float max);
 	int clamp(int toClamp, int min, int max);
+
+	int remap(int val, int min1, int max1, int min2, int max2);
+
 	float lerp(const float& from, const float& to, const float& t);
 	Vector3 lerp(const Vector3& from, const Vector3& to, const float& t);
 	Quaternion slerp(const Quaternion& from, Quaternion& to, const float& t);

@@ -28,31 +28,9 @@ void SkeletalMesh::AddBone(const std::string& name, const Vector3& pos, const Qu
 	bones.push_back(b);
 }
 
-void SkeletalMesh::PlayAnimation(const Animation& anim, const float& playSpeed)
+void SkeletalMesh::CreateAnimationPlayer(const Animation& anim1, const Animation& anim2)
 {
-	static float timer = 0.f;
-	static int currentKeyFrame = 0;
-
-	for (unsigned int i = 0; i < GetSkeletonSize(); ++i)
-	{
-		KeyFrameBone kfb = anim.GetBoneFromKeyFrame(currentKeyFrame, i);
-		KeyFrameBone nextKfb = anim.GetBoneFromKeyFrame(kfb.nextKF, i);
-
-		Vector3 newPos = lerp(bones[i].bindPos + kfb.pos, bones[i].bindPos + nextKfb.pos, timer);
-		Quaternion newRot = slerp(QuaternionMultiply(bones[i].bindRot, kfb.rot),
-								  QuaternionMultiply(bones[i].bindRot, nextKfb.rot), timer);
-
-		SetLocalBoneFromIndex(i, newPos, newRot);
-	}
-
-	timer += playSpeed;
-	if (timer >= 1.f)
-	{
-		timer = 0.f;
-		++currentKeyFrame;
-		if (currentKeyFrame >= anim.GetAnimationSize())
-			currentKeyFrame = 0;
-	}
+	animPlayer = AnimationPlayer{ anim1, anim2 };
 }
 
 unsigned int SkeletalMesh::GetSkeletonSize() const
@@ -95,6 +73,21 @@ const char* SkeletalMesh::GetBoneNameFromIndex(const int index) const
 
 void SkeletalMesh::UpdateSkeleton(float deltaTime)
 {
+	for (unsigned int i = 0; i < GetSkeletonSize(); ++i)
+	{
+		//lerp between actual key frame and next one
+
+		KeyFrameBone kfb = animPlayer.GetKeyFrameBoneFromIndex(i);
+		KeyFrameBone nextKfb = animPlayer.GetKeyFrameBoneFromIndex(i, true);
+
+		Vector3 newPos = lerp(bones[i].bindPos + kfb.pos, bones[i].bindPos + nextKfb.pos, animPlayer.GetTime());
+		Quaternion newRot = slerp(QuaternionMultiply(bones[i].bindRot, kfb.rot),
+								  QuaternionMultiply(bones[i].bindRot, nextKfb.rot), animPlayer.GetTime());
+
+		SetLocalBoneFromIndex(i, newPos, newRot);
+	}
+
+	animPlayer.UpdatePlayer();
 }
 
 void SkeletalMesh::DrawSkeleton(const Maths::Vector3& skeletonDrawOffset)

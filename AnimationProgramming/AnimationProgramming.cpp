@@ -53,12 +53,13 @@ class CSimulation : public ISimulation
 
 		walkAnim.LoadAnimation("ThirdPersonWalk.anim", skmesh.GetSkeletonSize());
 		runAnim.LoadAnimation("ThirdPersonRun.anim", skmesh.GetSkeletonSize());
+
+		skmesh.CreateAnimationPlayer(walkAnim, runAnim);
 	}
 	
 	virtual void Update(float frameTime) override
 	{
 		skmesh.UpdateSkeleton(frameTime);
-		skmesh.PlayAnimation(walkAnim, frameTime * 10.f);
 
 		// X axis
 		DrawLine(0, 0, 0, 100, 0, 0, 1, 0, 0);

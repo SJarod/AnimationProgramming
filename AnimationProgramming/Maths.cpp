@@ -1102,6 +1102,11 @@ int Maths::clamp(int toClamp, int min, int max)
     return toClamp;
 }
 
+int Maths::remap(int val, int min1, int max1, int min2, int max2)
+{
+	return min2 + (val - min1) * (max2 - min2) / (max1 - min1);
+}
+
 float Maths::lerp(const float& from, const float& to, const float& t)
 {
 	return (1 - t) * from + t * to;
