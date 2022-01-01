@@ -44,8 +44,10 @@ private:
 	float			time = 0.f;
 	float			playSpeed = 0.1f;
 	
-	//from 0 to 100 (percent)
+	//from 0 to [max animation size]
 	unsigned int	keyFrameProgress = 0;
+	unsigned int	maxAnimationSize = 100;
+
 	unsigned int	firstAnimKf = 0;
 	unsigned int	secondAnimKf = 0;
 

@@ -52,6 +52,8 @@ AnimationPlayer::AnimationPlayer(const Animation& anim1, const Animation& anim2)
 {
 	anims[0] = anim1;
 	anims[1] = anim2;
+
+	maxAnimationSize = Maths::max(anim1.GetAnimationSize(), anim2.GetAnimationSize());
 }
 
 void AnimationPlayer::UpdatePlayer()
@@ -61,11 +63,11 @@ void AnimationPlayer::UpdatePlayer()
 	{
 		time = 0.f;
 		++keyFrameProgress;
-		if (keyFrameProgress > 100)
+		if (keyFrameProgress > maxAnimationSize)
 			keyFrameProgress = 0;
 
-		firstAnimKf = remap(keyFrameProgress, 0, 100, 0, anims[0].GetAnimationSize());
-		secondAnimKf = remap(keyFrameProgress, 0, 100, 0, anims[1].GetAnimationSize());
+		firstAnimKf = remap(keyFrameProgress, 0, maxAnimationSize, 0, anims[0].GetAnimationSize());
+		secondAnimKf = remap(keyFrameProgress, 0, maxAnimationSize, 0, anims[1].GetAnimationSize());
 	}
 
 	crossfade = (sinf(std::clock() / 1000.f) + 1.f) / 2.f;
@@ -74,8 +76,8 @@ void AnimationPlayer::UpdatePlayer()
 
 KeyFrameBone AnimationPlayer::GetKeyFrameBoneFromIndex(const int index, const bool next) const
 {
-	int a = remap(keyFrameProgress + (int)next, 0, 100, 0, anims[0].GetAnimationSize());
-	int b = remap(keyFrameProgress + (int)next, 0, 100, 0, anims[1].GetAnimationSize());
+	int a = remap(keyFrameProgress + (int)next, 0, maxAnimationSize, 0, anims[0].GetAnimationSize());
+	int b = remap(keyFrameProgress + (int)next, 0, maxAnimationSize, 0, anims[1].GetAnimationSize());
 
 	int firstKf = a % anims[0].GetAnimationSize();
 	int secondKf = b % anims[1].GetAnimationSize();

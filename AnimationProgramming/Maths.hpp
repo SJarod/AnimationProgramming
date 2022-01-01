@@ -183,6 +183,9 @@ namespace Maths
 	float getFloatsMin4(Vector4 vec);
 	float getFloatsMax4(float num1, float num2, float num3, float num4);
 
+	inline int max(const int a, const int b) { return a > b ? a : b; };
+	inline int min(const int a, const int b) { return a < b ? a : b; };
+
 	float clamp(float toClamp, float min, float max);
 	int clamp(int toClamp, int min, int max);
 
