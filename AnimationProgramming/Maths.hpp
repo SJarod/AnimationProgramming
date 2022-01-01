@@ -190,7 +190,8 @@ namespace Maths
 
 	float lerp(const float& from, const float& to, const float& t);
 	Vector3 lerp(const Vector3& from, const Vector3& to, const float& t);
-	Quaternion slerp(const Quaternion& from, Quaternion& to, const float& t);
+	Quaternion nlerp(const Quaternion& from, const Quaternion& to, const float& t);
+	Quaternion slerp(const Quaternion& from, const Quaternion& to, const float& t);
 
 	namespace mat4
 	{
@@ -353,6 +354,9 @@ inline Vector3 operator-=(Vector3 v1, Vector3 v2) { return { v1.x - v2.x, v1.y -
 
 inline Vector4 operator*(Vector4 v, float a) { return { v.x * a, v.y * a, v.z * a, v.w * a }; };
 inline Vector4 operator+(Vector4 a, Vector4 b) { return { a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w }; };
+
+inline Quaternion operator*(Quaternion q, float a) { return { q.x * a, q.y * a, q.z * a, q.w * a }; };
+inline Quaternion operator+(Quaternion a, Quaternion b) { return { a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w }; };
 
 inline bool operator==(Vector3 v1, Vector3 v2) 
 { 

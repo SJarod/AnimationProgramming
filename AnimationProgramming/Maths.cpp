@@ -1121,73 +1121,47 @@ Vector3 Maths::lerp(const Vector3& from, const Vector3& to, const float& t)
 	return lerped;
 }
 
-Quaternion Maths::slerp(const Quaternion& from, Quaternion& to, const float& t)
+Quaternion Maths::nlerp(const Quaternion& from, const Quaternion& to, const float& t)
 {
-#if 0	//from Wikipedia
-	float cosOmega = from.w * to.w + from.x * to.x + from.y * to.y + from.z * to.z;
-	float omega = acosf(fabsf(cosOmega));
-
 	Quaternion lerped;
-	lerped.w = (sinf((1 - t) * omega) / sinf(omega)) * from.w + (sin(t * omega) / sin(omega)) * to.w;
-	lerped.x = (sinf((1 - t) * omega) / sinf(omega)) * from.x + (sin(t * omega) / sin(omega)) * to.x;
-	lerped.y = (sinf((1 - t) * omega) / sinf(omega)) * from.y + (sin(t * omega) / sin(omega)) * to.y;
-	lerped.z = (sinf((1 - t) * omega) / sinf(omega)) * from.z + (sin(t * omega) / sin(omega)) * to.z;
+	lerped.w = lerp(from.w, to.w, t);
+	lerped.x = lerp(from.x, to.x, t);
+	lerped.y = lerp(from.y, to.y, t);
+	lerped.z = lerp(from.z, to.z, t);
 
 	float mag = sqrtf(lerped.w * lerped.w + lerped.x * lerped.x + lerped.y * lerped.y + lerped.z * lerped.z);
-	if (mag == 0.f)
-		mag = 1.f;
 
-	return lerped;
-#elif 1	//from RayLib
-	Quaternion result = { 0 };
+	return Quaternion{ lerped.x / mag, lerped.y / mag, lerped.z / mag, lerped.w / mag };
+}
 
-	float cosHalfTheta = from.x * to.x + from.y * to.y + from.z * to.z + from.w * to.w;
+Quaternion Maths::slerp(const Quaternion& from, const Quaternion& to, const float& t)
+{
+	//based on Wikipedia and Raylib
 
-	if (cosHalfTheta < 0)
+	float cosHalfOmega = from.x * to.x + from.y * to.y + from.z * to.z + from.w * to.w;
+
+	Quaternion _to = to;
+	if (cosHalfOmega < 0)
 	{
-		to.x = -to.x; to.y = -to.y; to.z = -to.z; to.w = -to.w;
-		cosHalfTheta = -cosHalfTheta;
+		_to = _to * -1.f;
+		cosHalfOmega *= -1.f;
 	}
 
-	if (fabs(cosHalfTheta) >= 1.0f)
-		result = from;
-	else if (cosHalfTheta > 0.95f)
+	if (fabs(cosHalfOmega) >= 1.0f)
 	{
-		Quaternion lerped;
-		lerped.w = lerp(from.w, to.w, t);
-		lerped.x = lerp(from.x, to.x, t);
-		lerped.y = lerp(from.y, to.y, t);
-		lerped.z = lerp(from.z, to.z, t);
-
-		float mag = sqrtf(lerped.w * lerped.w + lerped.x * lerped.x + lerped.y * lerped.y + lerped.z * lerped.z);
-
-		result = Quaternion{ lerped.x / mag, lerped.y / mag, lerped.z / mag, lerped.w / mag };
+		return from;
+	}
+	else if (cosHalfOmega > 0.95f)
+	{
+		return nlerp(from, _to, t);
 	}
 	else
 	{
-		float halfTheta = acosf(cosHalfTheta);
-		float sinHalfTheta = sqrtf(1.0f - cosHalfTheta * cosHalfTheta);
+		float halfOmega = acosf(cosHalfOmega);
+		float sinHalfOmega = sqrtf(1.f - cosHalfOmega * cosHalfOmega);
 
-		if (fabs(sinHalfTheta) < 0.001f)
-		{
-			result.x = (from.x * 0.5f + to.x * 0.5f);
-			result.y = (from.y * 0.5f + to.y * 0.5f);
-			result.z = (from.z * 0.5f + to.z * 0.5f);
-			result.w = (from.w * 0.5f + to.w * 0.5f);
-		}
-		else
-		{
-			float ratioA = sinf((1 - t) * halfTheta) / sinHalfTheta;
-			float ratioB = sinf(t * halfTheta) / sinHalfTheta;
-
-			result.x = (from.x * ratioA + to.x * ratioB);
-			result.y = (from.y * ratioA + to.y * ratioB);
-			result.z = (from.z * ratioA + to.z * ratioB);
-			result.w = (from.w * ratioA + to.w * ratioB);
-		}
+		return from * (sinf((1 - t) * halfOmega) / sinHalfOmega) + _to * (sinf(t * halfOmega) / sinHalfOmega);
 	}
-	return result;
-#endif
 }
 
 #pragma endregion
