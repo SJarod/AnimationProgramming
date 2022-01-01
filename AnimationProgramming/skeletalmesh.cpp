@@ -73,6 +73,13 @@ const char* SkeletalMesh::GetBoneNameFromIndex(const int index) const
 
 void SkeletalMesh::UpdateSkeleton(float deltaTime)
 {
+	animPlayer.SetPlaySpeed(deltaTime * 10.f);
+
+	//changing crossfade percent based on app time
+	float seconds = std::clock() / 1000.f;
+	float cf = (sinf(seconds / 5.f) + 1.f) / 2.f;
+	animPlayer.SetCrossfadePercent(cf);
+
 	for (unsigned int i = 0; i < GetSkeletonSize(); ++i)
 	{
 		//lerp between actual key frame and next one

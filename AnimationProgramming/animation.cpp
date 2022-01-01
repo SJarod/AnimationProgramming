@@ -53,34 +53,30 @@ AnimationPlayer::AnimationPlayer(const Animation& anim1, const Animation& anim2)
 	anims[0] = anim1;
 	anims[1] = anim2;
 
-	maxAnimationSize = Maths::max(anim1.GetAnimationSize(), anim2.GetAnimationSize());
+	maxProgress = (unsigned int)((1.f - crossfade) * (float)anim1.GetAnimationSize() + crossfade * (float)anim2.GetAnimationSize());
 }
 
 void AnimationPlayer::UpdatePlayer()
 {
+	maxProgress = (unsigned int)((1.f - crossfade) * (float)anims[0].GetAnimationSize() + crossfade * (float)anims[1].GetAnimationSize());
+
 	time += playSpeed;
 	if (time >= 1.f)
 	{
 		time = 0.f;
 		++keyFrameProgress;
-		if (keyFrameProgress > maxAnimationSize)
+		if (keyFrameProgress >= maxProgress)
 			keyFrameProgress = 0;
 
-		firstAnimKf = remap(keyFrameProgress, 0, maxAnimationSize, 0, anims[0].GetAnimationSize());
-		secondAnimKf = remap(keyFrameProgress, 0, maxAnimationSize, 0, anims[1].GetAnimationSize());
+		firstAnimKf = remap(keyFrameProgress, 0, maxProgress, 0, anims[0].GetAnimationSize());
+		secondAnimKf = remap(keyFrameProgress, 0, maxProgress, 0, anims[1].GetAnimationSize());
 	}
-
-	crossfade = (sinf(std::clock() / 1000.f) + 1.f) / 2.f;
-	std::cout << crossfade << std::endl;
 }
 
 KeyFrameBone AnimationPlayer::GetKeyFrameBoneFromIndex(const int index, const bool next) const
 {
-	int a = remap(keyFrameProgress + (int)next, 0, maxAnimationSize, 0, anims[0].GetAnimationSize());
-	int b = remap(keyFrameProgress + (int)next, 0, maxAnimationSize, 0, anims[1].GetAnimationSize());
-
-	int firstKf = a % anims[0].GetAnimationSize();
-	int secondKf = b % anims[1].GetAnimationSize();
+	int firstKf = (firstAnimKf + (int)next) % anims[0].GetAnimationSize();
+	int secondKf = (secondAnimKf + (int)next) % anims[1].GetAnimationSize();
 
 	KeyFrameBone first, second;
 	first = anims[0].GetKeyFrameBone(firstKf, index);
@@ -95,4 +91,14 @@ KeyFrameBone AnimationPlayer::GetKeyFrameBoneFromIndex(const int index, const bo
 const float& AnimationPlayer::GetTime() const
 {
 	return time;
+}
+
+void AnimationPlayer::SetPlaySpeed(const float& newSpeed)
+{
+	playSpeed = newSpeed;
+}
+
+void AnimationPlayer::SetCrossfadePercent(const float& cf)
+{
+	crossfade = clamp(cf, 0.f, 1.f);
 }

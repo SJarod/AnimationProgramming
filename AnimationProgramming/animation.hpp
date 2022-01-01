@@ -46,7 +46,7 @@ private:
 	
 	//from 0 to [max animation size]
 	unsigned int	keyFrameProgress = 0;
-	unsigned int	maxAnimationSize = 100;
+	unsigned int	maxProgress = 100;
 
 	unsigned int	firstAnimKf = 0;
 	unsigned int	secondAnimKf = 0;
@@ -64,4 +64,6 @@ public:
 	KeyFrameBone	GetKeyFrameBoneFromIndex(const int index, const bool next = false) const;
 
 	const float&	GetTime() const;
+	void			SetPlaySpeed(const float& newSpeed);
+	void			SetCrossfadePercent(const float& cf);
 };
