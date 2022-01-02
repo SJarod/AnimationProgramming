@@ -97,6 +97,11 @@
       <AdditionalLibraryDirectories>../Data;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>Engine.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>mkdir "$(TargetDir)Resources"
+copy /Y "$(ProjectDir)../Data" "$(TargetDir)"
+copy /Y "$(ProjectDir)../Data/Resources" "$(TargetDir)Resources"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -132,6 +137,11 @@
       <AdditionalLibraryDirectories>../Data;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>Engine.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>mkdir "$(TargetDir)Resources"
+copy /Y "$(ProjectDir)../Data" "$(TargetDir)"
+copy /Y "$(ProjectDir)../Data/Resources" "$(TargetDir)Resources"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
