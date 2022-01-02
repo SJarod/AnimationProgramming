@@ -4,6 +4,11 @@
 # Description
 This project is made to discover how animation works using Unreal model and animations.
 
+# Information
+The engine calls the Init function then calls the Update function. The SkeletalMesh then updates itself. If the user wants to change the animation speed, change the crossfade value or play arround with the values, they have to directly change the SkeletalMesh's update function.
+A sample is provided for changing the crossfade value throughout the time.
+The user cannot interact in runtime because of the lack of input implemented.
+
 # Controls
 | Button | Action |
 | -- | -- |
