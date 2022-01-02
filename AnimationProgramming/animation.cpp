@@ -53,12 +53,12 @@ AnimationPlayer::AnimationPlayer(const Animation& anim1, const Animation& anim2)
 	anims[1] = anim2;
 }
 
-void AnimationPlayer::UpdatePlayer()
+void AnimationPlayer::UpdatePlayer(const float& deltaTime)
 {
-	float uSpeed = fabsf(playSpeed);
+	float uSpeed = deltaTime * fabsf(playSpeed);
 
 	time += uSpeed;
-	if (time >= 1.f)
+	if (time >= targetKeyFrameTime)
 	{
 		time = 0.f;
 
@@ -103,9 +103,9 @@ KeyFrameBone AnimationPlayer::GetKeyFrameBoneFromIndex(const int index, const bo
 	return { lPos, lRot };
 }
 
-const float& AnimationPlayer::GetTime() const
+const float AnimationPlayer::GetKeyFrameProgress() const
 {
-	return time;
+	return time / targetKeyFrameTime;
 }
 
 void AnimationPlayer::SetPlaySpeed(const float& newSpeed)

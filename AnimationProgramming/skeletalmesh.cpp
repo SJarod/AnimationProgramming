@@ -71,8 +71,6 @@ const char* SkeletalMesh::GetBoneNameFromIndex(const int index) const
 
 void SkeletalMesh::UpdateSkeleton(float deltaTime)
 {
-	animPlayer.SetPlaySpeed(deltaTime);
-
 	//changing crossfade percent based on app time
 	float seconds = std::clock() / 1000.f;
 	float cf = (sinf(seconds / 5.f) + 1.f) / 2.f;
@@ -85,14 +83,14 @@ void SkeletalMesh::UpdateSkeleton(float deltaTime)
 		KeyFrameBone kfb = animPlayer.GetKeyFrameBoneFromIndex(i);
 		KeyFrameBone nextKfb = animPlayer.GetKeyFrameBoneFromIndex(i, true);
 
-		Vector3 newPos = lerp(bones[i].bindPos + kfb.pos, bones[i].bindPos + nextKfb.pos, animPlayer.GetTime());
+		Vector3 newPos = lerp(bones[i].bindPos + kfb.pos, bones[i].bindPos + nextKfb.pos, animPlayer.GetKeyFrameProgress());
 		Quaternion newRot = slerp(QuaternionMultiply(bones[i].bindRot, kfb.rot),
-								  QuaternionMultiply(bones[i].bindRot, nextKfb.rot), animPlayer.GetTime());
+								  QuaternionMultiply(bones[i].bindRot, nextKfb.rot), animPlayer.GetKeyFrameProgress());
 
 		SetLocalBoneFromIndex(i, newPos, newRot);
 	}
 
-	animPlayer.UpdatePlayer();
+	animPlayer.UpdatePlayer(deltaTime);
 }
 
 void SkeletalMesh::DrawSkeleton(const Maths::Vector3& skeletonDrawOffset)

@@ -41,8 +41,10 @@ public:
 class AnimationPlayer
 {
 private:
+	float			playSpeed = 1.f;
+
 	float			time = 0.f;
-	float			playSpeed = 0.1f;
+	float			targetKeyFrameTime = 1.f / 30.f;
 	
 	unsigned int	firstAnimKf = 0;
 	unsigned int	secondAnimKf = 0;
@@ -55,11 +57,12 @@ public:
 	AnimationPlayer() = default;
 	AnimationPlayer(const Animation& anim1, const Animation& anim2);
 
-	void			UpdatePlayer();
+	void			UpdatePlayer(const float& deltaTime);
 	//index : bone index, next : take next key frame
 	KeyFrameBone	GetKeyFrameBoneFromIndex(const int index, const bool next = false) const;
 
-	const float&	GetTime() const;
+	const float		GetKeyFrameProgress() const;
+
 	void			SetPlaySpeed(const float& newSpeed);
 	void			SetCrossfadePercent(const float& cf);
 };
