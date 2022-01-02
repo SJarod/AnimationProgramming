@@ -55,24 +55,43 @@ AnimationPlayer::AnimationPlayer(const Animation& anim1, const Animation& anim2)
 
 void AnimationPlayer::UpdatePlayer()
 {
-	time += playSpeed;
+	float uSpeed = fabsf(playSpeed);
+
+	time += uSpeed;
 	if (time >= 1.f)
 	{
 		time = 0.f;
-		++firstAnimKf;
-		if (firstAnimKf >= anims[0].GetAnimationSize())
-			firstAnimKf = 0;
 
-		++secondAnimKf;
-		if (secondAnimKf >= anims[1].GetAnimationSize())
-			secondAnimKf = 0;
+		if (playSpeed > 0)
+		{
+			++firstAnimKf;
+			if (firstAnimKf >= anims[0].GetAnimationSize())
+				firstAnimKf = 0;
+
+			++secondAnimKf;
+			if (secondAnimKf >= anims[1].GetAnimationSize())
+				secondAnimKf = 0;
+		}
+		else
+		{
+			--firstAnimKf;
+			if (firstAnimKf <= 0)
+				firstAnimKf = anims[0].GetAnimationSize() - 1;
+
+			--secondAnimKf;
+			if (secondAnimKf <= 0)
+				secondAnimKf = anims[1].GetAnimationSize() - 1;
+		}
 	}
 }
 
 KeyFrameBone AnimationPlayer::GetKeyFrameBoneFromIndex(const int index, const bool next) const
 {
-	int firstKf = (firstAnimKf + (int)next) % anims[0].GetAnimationSize();
-	int secondKf = (secondAnimKf + (int)next) % anims[1].GetAnimationSize();
+	// 1 or -1
+	int rewind = (int)(playSpeed / fabsf(playSpeed));
+
+	int firstKf = (firstAnimKf + (int)next * rewind) % anims[0].GetAnimationSize();
+	int secondKf = (secondAnimKf + (int)next * rewind) % anims[1].GetAnimationSize();
 
 	KeyFrameBone first, second;
 	first = anims[0].GetKeyFrameBone(firstKf, index);
