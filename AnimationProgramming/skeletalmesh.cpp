@@ -1,5 +1,3 @@
-
-#include <chrono>
 #include "skeletalmesh.hpp"
 #include "Engine.h"
 #include "EngineOverloads.h"
@@ -73,7 +71,7 @@ const char* SkeletalMesh::GetBoneNameFromIndex(const int index) const
 
 void SkeletalMesh::UpdateSkeleton(float deltaTime)
 {
-	animPlayer.SetPlaySpeed(deltaTime * 10.f);
+	animPlayer.SetPlaySpeed(deltaTime);
 
 	//changing crossfade percent based on app time
 	float seconds = std::clock() / 1000.f;

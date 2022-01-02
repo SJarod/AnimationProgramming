@@ -34,7 +34,7 @@ public:
 	void LoadAnimation(const char* filename, const int skeletonSize);
 
 	//animation's key frames count, count starts from 1 not 0
-	int				GetAnimationSize() const;
+	unsigned int	GetAnimationSize() const;
 	KeyFrameBone	GetKeyFrameBone(const int keyFrame, const int boneIndex) const;
 };
 
@@ -44,10 +44,6 @@ private:
 	float			time = 0.f;
 	float			playSpeed = 0.1f;
 	
-	//from 0 to [max animation size]
-	unsigned int	keyFrameProgress = 0;
-	unsigned int	maxProgress = 100;
-
 	unsigned int	firstAnimKf = 0;
 	unsigned int	secondAnimKf = 0;
 

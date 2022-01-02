@@ -1136,8 +1136,6 @@ Quaternion Maths::nlerp(const Quaternion& from, const Quaternion& to, const floa
 
 Quaternion Maths::slerp(const Quaternion& from, const Quaternion& to, const float& t)
 {
-	//based on Wikipedia and Raylib
-
 	float cosHalfOmega = from.x * to.x + from.y * to.y + from.z * to.z + from.w * to.w;
 
 	Quaternion _to = to;
@@ -1150,10 +1148,6 @@ Quaternion Maths::slerp(const Quaternion& from, const Quaternion& to, const floa
 	if (fabs(cosHalfOmega) >= 1.0f)
 	{
 		return from;
-	}
-	else if (cosHalfOmega > 0.95f)
-	{
-		return nlerp(from, _to, t);
 	}
 	else
 	{
